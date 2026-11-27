@@ -1,0 +1,72 @@
+name: Arm64 Signed Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web-ui/package-lock.json
+
+      - name: Install web UI dependencies
+        working-directory: web-ui
+        run: npm ci
+
+      - name: Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
+      - name: Prepare signing
+        run: |
+          mkdir -p app
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.jks
+          cat > local.properties <<EOF
+          storeFile=$GITHUB_WORKSPACE/app/release.jks
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEYSTORE_ALIAS }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          EOF
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > app/google-services.json
+          fi
+          ls -l app/release.jks
+
+      - name: Build arm64 release APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleStableArm64Release --no-daemon -Plastchat.abi.splits=true
+
+      - name: Report APK size
+        run: find app/build/outputs/apk -name '*.apk' -exec ls -lh {} \;
+
+      - name: Upload arm64 APK
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: LastChat-arm64-release
+          path: app/build/outputs/apk/stable/arm64/release/*.apk
+          if-no-files-found: error
+          retention-days: 90
