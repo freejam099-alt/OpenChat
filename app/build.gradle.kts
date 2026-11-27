@@ -282,6 +282,8 @@ dependencies {
     // Image metadata extractor
     // https://github.com/drewnoakes/metadata-extractor
     implementation(libs.metadata.extractor)
+    // Still used by ImageUtils for EXIF rotation after CameraX was dropped.
+    implementation("androidx.exifinterface:exifinterface:1.3.6")
 
     // Haze (background blur for glassy floating controls)
     implementation(libs.haze)

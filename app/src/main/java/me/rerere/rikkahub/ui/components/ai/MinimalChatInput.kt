@@ -1297,7 +1297,6 @@ fun MinimalChatInput(
                                 }
                                 LastChatComposerActionButton(
                                     action = currentAction,
-                                    modifier = Modifier.lastChatGlassInteractive(CircleShape),
                                     onClick = {
                                         when (currentAction) {
                                             LastChatComposerAction.Send,
@@ -1311,7 +1310,7 @@ fun MinimalChatInput(
                                             else -> Unit
                                         }
                                     },
-                                    modifier = Modifier.size(AppSize.ChromePill),
+                                    modifier = Modifier.size(AppSize.ChromePill).lastChatGlassInteractive(CircleShape),
                                     containerColorOverride = if (currentAction == LastChatComposerAction.Picker) {
                                         MaterialTheme.colorScheme.surfaceVariant
                                     } else {

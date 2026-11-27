@@ -844,6 +844,7 @@ private fun AddButton(
             // Keep a faulty haptic/preset state from force-closing the whole app.
             android.util.Log.e("SettingProviderPage", "Failed to open provider sheet", t)
         }
+        Unit
     }
 
     if (asFab) {
