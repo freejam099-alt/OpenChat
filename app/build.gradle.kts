@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.liquidglass)
 }
 
 val enableReleaseShrinker = providers.gradleProperty("lastchat.release.minify")
@@ -206,7 +207,9 @@ android {
             )
         }
         jniLibs {
-            useLegacyPackaging = true
+            // Compress native libs inside the APK. On minSdk 28+ Android can map them directly
+            // from the APK, so this removes several MB from the arm64 APK without losing features.
+            useLegacyPackaging = false
             pickFirsts += "lib/*/libtermux.so"
         }
     }
@@ -242,9 +245,13 @@ tasks.register("buildAll") {
     description = "Build both APK and AAB"
 }
 
+tasks.register("buildArm64Release") {
+    dependsOn("assembleStableArm64Release")
+    description = "Build only the arm64 release APK (smallest variant, signed with local.properties keystore)"
+}
+
 tasks.named("preBuild") {
     dependsOn(buildWebUi)
-    dependsOn(":speech:downloadSherpaOnnxAar")
 }
 
 tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach {
@@ -282,6 +289,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    // Liquid Glass: iOS 26/27 glass material + glass versions of Material 3 components.
+    // See https://github.com/shayann07/liquidglass (getting started / material3 guide).
+    implementation(platform(libs.liquidglass.bom))
+    implementation(libs.liquidglass)
+    implementation(libs.liquidglass.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.material3.adaptive)
     implementation(libs.androidx.material3.adaptive.layout)
@@ -399,12 +411,8 @@ dependencies {
     implementation(project(":search"))
     implementation(project(":tts"))
     implementation(project(":speech"))
-    // sherpa-onnx AAR must be provided at the app level because :speech uses compileOnly
-    // (AGP forbids direct local AAR deps inside library modules)
-    implementation(files(rootProject.file("speech/build/sherpa/sherpa-onnx-1.13.4.aar")))
     implementation(project(":common"))
     implementation(project(":workspace"))
-    implementation(project(":local-llm"))
     implementation(libs.jsoup)
     implementation(kotlin("reflect"))
     implementation(libs.termux.terminal.view)

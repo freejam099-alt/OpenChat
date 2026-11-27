@@ -53,7 +53,6 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Psychology
-import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.Title
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -64,12 +63,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
+import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.SegmentedButton
+import com.wexpa.liquidglass.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import com.wexpa.liquidglass.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -120,7 +119,6 @@ import me.rerere.rikkahub.ui.pages.setting.components.ProviderPreset
 import me.rerere.rikkahub.ui.pages.setting.components.SecureOutlinedTextField
 import me.rerere.rikkahub.ui.pages.setting.components.SettingsGroup
 import me.rerere.rikkahub.ui.pages.setting.components.toProviderSetting
-import me.rerere.rikkahub.ui.pages.setting.locallm.SettingLocalLlmPage
 import me.rerere.rikkahub.ui.theme.AppShapes
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -146,7 +144,6 @@ fun OnboardingPage(vm: OnboardingVM = koinViewModel()) {
     var apiKey by remember { mutableStateOf("") }
     var guidedModelsLoading by remember { mutableStateOf(false) }
     var manualModelsLoading by remember { mutableStateOf(false) }
-    var localSetupCompleting by remember { mutableStateOf(false) }
     var manualModels by remember { mutableStateOf<List<Model>>(emptyList()) }
     val selectedModels = remember { mutableStateListOf<Model>() }
     var roleModels by remember { mutableStateOf(SetupRoleModels()) }
@@ -170,11 +167,7 @@ fun OnboardingPage(vm: OnboardingVM = koinViewModel()) {
     }
 
     fun handleBack() {
-        if (page == SetupPage.LocalModels) {
-            vm.cancelLocalSetup(::goBack)
-        } else {
-            goBack()
-        }
+        goBack()
     }
 
     fun goToApiKeyFlow(
@@ -242,11 +235,7 @@ fun OnboardingPage(vm: OnboardingVM = koinViewModel()) {
                         manualProvider = provider
                         manualProviderPreset = preset
                         apiKey = ""
-                        if (provider is ProviderSetting.LiteRtLocal) {
-                            vm.beginLocalSetup(provider) {
-                                goTo(SetupPage.LocalModels)
-                            }
-                        } else if (preset?.apiKeyUrl.isNullOrBlank()) {
+                        if (preset?.apiKeyUrl.isNullOrBlank()) {
                             goTo(SetupPage.ManualKey)
                         } else {
                             goTo(SetupPage.ManualKeyLink)
@@ -306,36 +295,6 @@ fun OnboardingPage(vm: OnboardingVM = koinViewModel()) {
                         }
                     },
                 )
-
-                SetupPage.LocalModels -> SettingLocalLlmPage(
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            haptics.perform(HapticPattern.Pop)
-                            handleBack()
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = "Back",
-                            )
-                        }
-                    },
-                    setupBottomBar = { state ->
-                        LocalModelSetupBottomBar(
-                            canContinue = state.installed.any { !it.isEmbedding },
-                            loading = localSetupCompleting,
-                            onContinue = {
-                                haptics.perform(HapticPattern.Pop)
-                                localSetupCompleting = true
-                                vm.completeLocalSetup {
-                                    localSetupCompleting = false
-                                    haptics.perform(HapticPattern.Success)
-                                    goTo(SetupPage.Success)
-                                }
-                            },
-                        )
-                    },
-                )
-
 
                 SetupPage.ManualKeyLink -> LinkOutPage(
                     text = "Get your API key from the\n${manualProviderPreset?.name ?: "provider"} dashboard.",
@@ -470,54 +429,6 @@ fun OnboardingPage(vm: OnboardingVM = koinViewModel()) {
 }
 
 private val SetupEdgePadding = 16.dp
-
-@Composable
-private fun LocalModelSetupBottomBar(
-    canContinue: Boolean,
-    loading: Boolean,
-    onContinue: () -> Unit,
-) {
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 3.dp,
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = SetupEdgePadding, vertical = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = if (canContinue) {
-                    "Your local model is ready."
-                } else {
-                    "Download at least one chat model to continue."
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f),
-            )
-            Button(
-                onClick = onContinue,
-                enabled = canContinue && !loading,
-                shape = AppShapes.ButtonRounded,
-            ) {
-                if (loading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                    )
-                } else {
-                    Text("Continue")
-                    Spacer(Modifier.width(8.dp))
-                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = null)
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun IntroPage(
@@ -656,12 +567,6 @@ private fun ProviderOverviewPage(
     onTooManyOptions: () -> Unit,
     onSelectProvider: (ProviderSetting, ProviderPreset?) -> Unit,
 ) {
-    val localPreset = providerPresets.firstOrNull {
-        it.type == ProviderSetting.LiteRtLocal::class
-    }
-    val remotePresets = providerPresets.filterNot {
-        it.type == ProviderSetting.LiteRtLocal::class
-    }
     SetupScaffold(
         bottom = {
             TwoSetupButtons(
@@ -689,19 +594,6 @@ private fun ProviderOverviewPage(
             )
             Spacer(modifier = Modifier.height(24.dp))
             FadingLazyColumn {
-                localPreset?.let { preset ->
-                    item {
-                        ProviderPresetCard(
-                            name = preset.name,
-                            description = preset.description,
-                            iconUri = preset.customIconUri,
-                            isLocal = true,
-                            position = ItemPosition.ONLY,
-                            onClick = { onSelectProvider(preset.toProviderSetting(), preset) },
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
                 item {
                     ProviderCustomCard(
                         onClick = {
@@ -716,7 +608,7 @@ private fun ProviderOverviewPage(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
-                if (remotePresets.isEmpty()) {
+                if (providerPresets.isEmpty()) {
                     item {
                         CircularProgressIndicator(
                             modifier = Modifier
@@ -726,18 +618,17 @@ private fun ProviderOverviewPage(
                         )
                     }
                 } else {
-                    itemsIndexed(remotePresets, key = { _, preset -> preset.name }) { index, preset ->
+                    itemsIndexed(providerPresets, key = { _, preset -> preset.name }) { index, preset ->
                         val position = when {
-                            remotePresets.size == 1 -> ItemPosition.ONLY
+                            providerPresets.size == 1 -> ItemPosition.ONLY
                             index == 0 -> ItemPosition.FIRST
-                            index == remotePresets.lastIndex -> ItemPosition.LAST
+                            index == providerPresets.lastIndex -> ItemPosition.LAST
                             else -> ItemPosition.MIDDLE
                         }
                         ProviderPresetCard(
                             name = preset.name,
                             description = preset.description,
                             iconUri = preset.customIconUri,
-                            isLocal = false,
                             position = position,
                             onClick = { onSelectProvider(preset.toProviderSetting(), preset) },
                         )
@@ -1304,7 +1195,6 @@ private fun ProviderPresetCard(
     name: String,
     description: String,
     iconUri: String?,
-    isLocal: Boolean,
     position: ItemPosition,
     onClick: () -> Unit,
 ) {
@@ -1313,19 +1203,11 @@ private fun ProviderPresetCard(
         shape = groupedCardShape(position),
         minHeight = 72.dp,
     ) {
-        if (isLocal) {
-            Icon(
-                imageVector = Icons.Rounded.PhoneAndroid,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-            )
-        } else {
-            AutoAIIconWithUrl(
-                name = name,
-                customIconUri = iconUri,
-                modifier = Modifier.size(40.dp),
-            )
-        }
+        AutoAIIconWithUrl(
+            name = name,
+            customIconUri = iconUri,
+            modifier = Modifier.size(40.dp),
+        )
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -1656,7 +1538,6 @@ private enum class SetupPage {
     GuidedSignup,
     GuidedKeyLink,
     GuidedPasteKey,
-    LocalModels,
     ManualKeyLink,
     ManualKey,
     ManualModels,
@@ -1780,7 +1661,6 @@ private fun previousPage(page: SetupPage): SetupPage? {
         SetupPage.GuidedSignup -> SetupPage.GuidedChoice
         SetupPage.GuidedKeyLink -> SetupPage.GuidedSignup
         SetupPage.GuidedPasteKey -> SetupPage.GuidedKeyLink
-        SetupPage.LocalModels -> SetupPage.ProviderOverview
         SetupPage.ManualKeyLink -> SetupPage.ProviderOverview
         SetupPage.ManualKey -> SetupPage.ManualKeyLink
         SetupPage.ManualModels -> SetupPage.ManualKey

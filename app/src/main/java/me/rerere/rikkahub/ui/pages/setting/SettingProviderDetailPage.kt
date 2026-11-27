@@ -58,16 +58,16 @@ import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.MultiChoiceSegmentedButtonRow
+import com.wexpa.liquidglass.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.SegmentedButton
+import com.wexpa.liquidglass.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
+import com.wexpa.liquidglass.material3.SingleChoiceSegmentedButtonRow
+import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import me.rerere.rikkahub.ui.components.ui.HapticSwitch
 import me.rerere.rikkahub.ui.components.ui.DebouncedTextField
@@ -309,11 +309,7 @@ private fun ProviderSetting.apiModelCacheKey(): String {
             workflowJson.hashCode().toString(),
         )
 
-        is ProviderSetting.LiteRtLocal -> listOf(
-            "litert_local",
-            id.toString(),
-            models.size.toString(),
-        )
+        else -> listOf("other", id.toString())
     }.joinToString("|")
 }
 
@@ -327,7 +323,7 @@ private fun ProviderSetting.canFetchApiModels(): Boolean {
         }
         is ProviderSetting.Claude -> apiKeyPool.any { it.enabled } || apiKey.isNotBlank()
         is ProviderSetting.ComfyUI -> workflowJson.isNotBlank()
-        is ProviderSetting.LiteRtLocal -> false // on-device: no remote model list
+        else -> false
     }
 }
 
@@ -1159,80 +1155,6 @@ private fun ModelList(
 
 
 @Composable
-private fun LocalHuggingFaceInstallFab(
-    isDownloading: Boolean,
-    onInstallUrl: (String) -> Unit,
-) {
-    var showSheet by remember { mutableStateOf(false) }
-    var url by remember { mutableStateOf("") }
-    val haptics = me.rerere.rikkahub.ui.hooks.rememberPremiumHaptics()
-
-    FloatingActionButton(
-        onClick = {
-            haptics.perform(me.rerere.rikkahub.ui.hooks.HapticPattern.Pop)
-            showSheet = true
-        },
-        shape = me.rerere.rikkahub.ui.theme.AppShapes.CardLarge,
-        containerColor = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-    ) {
-        Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.local_llm_install_url_action))
-    }
-
-    if (showSheet) {
-        ModalBottomSheet(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            onDismissRequest = { showSheet = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .imePadding()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Text(
-                    text = stringResource(R.string.local_llm_install_url_action),
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                OutlinedTextField(
-                    value = url,
-                    onValueChange = { url = it },
-                    label = { Text(stringResource(R.string.local_llm_install_url_label)) },
-                    supportingText = { Text(stringResource(R.string.local_llm_install_url_hint)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                ) {
-                    OutlinedButton(
-                        onClick = { showSheet = false },
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                    Button(
-                        onClick = {
-                            onInstallUrl(url)
-                            url = ""
-                            showSheet = false
-                        },
-                        enabled = url.isNotBlank() && !isDownloading,
-                        modifier = Modifier.weight(1f),
-                    ) {
-                        Text(stringResource(R.string.local_llm_install_url_action))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun ModelSettingsForm(
     model: Model,
     onModelChange: (Model) -> Unit,
@@ -2009,7 +1931,7 @@ containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceCon
                                 is ProviderSetting.Google -> parentProvider.apiKeyPool.any { it.enabled } || parentProvider.apiKey.isNotBlank()
                                 is ProviderSetting.Claude -> parentProvider.apiKeyPool.any { it.enabled } || parentProvider.apiKey.isNotBlank()
                                 is ProviderSetting.ComfyUI -> parentProvider.workflowJson.isNotBlank()
-                                is ProviderSetting.LiteRtLocal -> true
+                                else -> false
                             }
                             
                             Column(
@@ -2176,7 +2098,7 @@ private suspend fun probeModelCapabilities(
         )
 
         is ProviderSetting.ComfyUI -> null
-        is ProviderSetting.LiteRtLocal -> null
+        else -> null
     }
 }
 
@@ -2411,7 +2333,7 @@ private fun buildToolProbeCustomBodies(provider: ProviderSetting): List<CustomBo
         )
 
         is ProviderSetting.ComfyUI -> emptyList()
-        is ProviderSetting.LiteRtLocal -> emptyList()
+        else -> emptyList()
     }
 }
 
@@ -2780,123 +2702,6 @@ fun ModalAbilitySelector(
                     )
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun LocalLiteRtModelIdentitySheet(
-    model: Model,
-    onModelChange: (Model) -> Unit,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    parentProvider: ProviderSetting,
-) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        uri ?: return@rememberLauncherForActivityResult
-        scope.launch {
-            val extension = iconFileExtension(context, uri)
-            val copiedUri = withContext(Dispatchers.IO) {
-                ImageUtils.copyImageToInternalStorage(
-                    context = context,
-                    sourceUri = uri,
-                    fileName = "model_icon_${model.id}.$extension",
-                )
-            }
-            copiedUri?.let { iconUri ->
-                onModelChange(model.copy(customIconUri = iconUri.toString()))
-            }
-        }
-    }
-
-    ModalBottomSheet(
-        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        dragHandle = null,
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .imePadding()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                IconButton(
-                    onClick = {
-                        scope.launch {
-                            sheetState.hide()
-                            onDismiss()
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.CenterStart),
-                ) {
-                    Icon(Icons.Rounded.Close, null)
-                }
-                Text(
-                    text = stringResource(R.string.local_llm_edit_identity_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                CustomIconSelector(
-                    customIconUri = model.customIconUri,
-                    onPickFile = {
-                        imagePickerLauncher.launch(arrayOf("image/*", "image/svg+xml"))
-                    },
-                    onPickLobeHubIcon = { slug ->
-                        onModelChange(model.copy(customIconUri = lobeHubIconUri(slug)))
-                    },
-                    onReset = {
-                        onModelChange(model.copy(customIconUri = null))
-                    },
-                ) { iconModifier ->
-                    ModelIcon(
-                        model = model,
-                        provider = parentProvider,
-                        modifier = iconModifier,
-                    )
-                }
-                OutlinedTextField(
-                    value = model.displayName,
-                    onValueChange = { onModelChange(model.copy(displayName = it)) },
-                    label = { Text(stringResource(R.string.setting_provider_page_model_display_name)) },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f),
-                    shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            ) {
-                OutlinedButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.cancel))
-                }
-                Button(
-                    onClick = onConfirm,
-                    enabled = model.displayName.isNotBlank(),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.confirm))
-                }
-            }
         }
     }
 }

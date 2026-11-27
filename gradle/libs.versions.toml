@@ -46,6 +46,7 @@ browser = "1.9.0"
 appcompat = "1.7.1"
 material = "1.13.0"
 haze = "2.0.0-alpha02"
+liquidglass = "1.0.0"
 
 uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
@@ -55,9 +56,6 @@ ktor = "3.5.1"
 glance = "1.1.1"
 security-crypto = "1.1.0-alpha06"
 jmdns = "3.6.3"
-litertlm = "0.11.0"
-localagentsRag = "0.3.0"
-protobufJavalite = "3.25.1"
 
 [libraries]
 androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
@@ -84,7 +82,7 @@ androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.5.0-alpha08" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.5.0" }
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 androidx-navigation2 = { group = "androidx.navigation", name = "navigation-compose", version.ref = "nav2" }
 androidx-material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive", version.ref = "material3AdaptiveNav3" }
@@ -132,6 +130,9 @@ material = { group = "com.google.android.material", name = "material", version.r
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 haze-blur = { module = "dev.chrisbanes.haze:haze-blur", version.ref = "haze" }
 haze-blur-materials = { module = "dev.chrisbanes.haze:haze-blur-materials", version.ref = "haze" }
+liquidglass-bom = { module = "dev.shayxo.liquidglass:liquidglass-bom", version.ref = "liquidglass" }
+liquidglass = { module = "dev.shayxo.liquidglass:liquidglass" }
+liquidglass-material3 = { module = "dev.shayxo.liquidglass:liquidglass-material3" }
 
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
@@ -155,9 +156,6 @@ androidx-glance-material3 = { group = "androidx.glance", name = "glance-material
 xz = { module = "org.tukaani:xz", version = "1.12" }
 termux-terminal-view = { module = "com.termux.termux-app:terminal-view", version.ref = "termux" }
 termux-terminal-emulator = { module = "com.termux.termux-app:terminal-emulator", version.ref = "termux" }
-litertlm-android = { module = "com.google.ai.edge.litertlm:litertlm-android", version.ref = "litertlm" }
-localagents-rag = { module = "com.google.ai.edge.localagents:localagents-rag", version.ref = "localagentsRag" }
-protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobufJavalite" }
 
 [plugins]
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
@@ -172,3 +170,4 @@ google-services = { id = "com.google.gms.google-services", version.ref = "google
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
+liquidglass = { id = "dev.shayxo.liquidglass", version.ref = "liquidglass" }

@@ -40,7 +40,20 @@ class ProviderSettingsNormalizationTest {
               "customIconUri": null
             }
         """.trimIndent()
-        val providersJson = "[${JsonInstant.encodeToString(ProviderSetting.serializer(), remoteProvider)},$localProviderJson]"
+        val litertProviderJson = """
+            {
+              "type": "litert_local",
+              "id": "22222222-2222-2222-2222-222222222222",
+              "enabled": true,
+              "name": "On-device LiteRT",
+              "models": [],
+              "proxy": { "type": "none" },
+              "balanceOption": {},
+              "tags": []
+            }
+        """.trimIndent()
+        val remoteJson = JsonInstant.encodeToString(ProviderSetting.serializer(), remoteProvider)
+        val providersJson = "[$remoteJson,$localProviderJson,$litertProviderJson]"
         val preferences = preferencesOf(SettingsStore.PROVIDERS to providersJson)
 
         val migrated = PreferenceStoreV1Migration().migrate(preferences)
@@ -141,47 +154,6 @@ class ProviderSettingsNormalizationTest {
         assertTrue(normalized.ragIncludeEpisodes)
         assertEquals(1, normalized.ragLimit)
         assertEquals(0.45f, normalized.ragSimilarityThreshold)
-    }
-
-    @Test
-    fun `local provider is created when any on-device model exists`() {
-        val stt = Model(modelId = "whisper-local", displayName = "Whisper", type = ModelType.STT)
-        val settings = Settings(providers = listOf(ProviderSetting.OpenAI()))
-
-        val created = settings.withSyncedLocalProviderModels(
-            llmAndEmbeddingModels = emptyList(),
-            sttModels = listOf(stt),
-        )
-
-        val local = created.providers.filterIsInstance<ProviderSetting.LiteRtLocal>().single()
-        assertEquals(listOf(stt.modelId), local.models.map { it.modelId })
-    }
-
-    @Test
-    fun `empty install list does not recreate a deleted local provider`() {
-        val settings = Settings(providers = listOf(ProviderSetting.OpenAI()))
-        val unchanged = settings.withSyncedLocalProviderModels(
-            llmAndEmbeddingModels = emptyList(),
-            sttModels = emptyList(),
-        )
-        assertTrue(unchanged.providers.none { it is ProviderSetting.LiteRtLocal })
-    }
-
-    @Test
-    fun `existing local provider stays in place while models sync`() {
-        val existing = ProviderSetting.LiteRtLocal(name = "Local")
-        val remote = ProviderSetting.OpenAI()
-        val chat = Model(modelId = "gemma-local", displayName = "Gemma", type = ModelType.CHAT)
-        val settings = Settings(providers = listOf(remote, existing))
-
-        val synced = settings.withSyncedLocalProviderModels(
-            llmAndEmbeddingModels = listOf(chat),
-            sttModels = emptyList(),
-        )
-
-        assertEquals(listOf(remote.id, existing.id), synced.providers.map { it.id })
-        val local = synced.providers.filterIsInstance<ProviderSetting.LiteRtLocal>().single()
-        assertEquals(listOf(chat.modelId), local.models.map { it.modelId })
     }
 
     @Test

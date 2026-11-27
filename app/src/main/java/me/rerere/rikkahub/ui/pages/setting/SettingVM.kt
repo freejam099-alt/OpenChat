@@ -33,13 +33,6 @@ class SettingVM(
     private val modelCatalogService: ModelCatalogService,
     private val modelMetadataResolver: ModelMetadataResolver,
     private val memoryRepository: MemoryRepository,
-    private val localModelStore: me.rerere.locallm.LocalModelStore,
-    private val localModelInstall: me.rerere.locallm.ModelInstall,
-    private val liteRtRuntime: me.rerere.locallm.LiteRtRuntime,
-    private val liteRtEmbedder: me.rerere.locallm.LiteRtEmbedder,
-    private val sherpaModelStore: me.rerere.asr.local.SherpaModelStore,
-    private val sherpaModelInstall: me.rerere.asr.local.SherpaModelInstall,
-    private val sherpaSttRuntime: me.rerere.asr.local.SherpaSttRuntime,
 ) :
     ViewModel() {
     val settings: StateFlow<Settings> = settingsStore.settingsFlow
@@ -49,21 +42,6 @@ class SettingVM(
 
     fun deleteProvider(provider: me.rerere.ai.provider.ProviderSetting) {
         viewModelScope.launch {
-            if (provider is me.rerere.ai.provider.ProviderSetting.LiteRtLocal) {
-                withContext(Dispatchers.IO) {
-                    runCatching { liteRtRuntime.unload() }
-                    runCatching { liteRtEmbedder.unload() }
-                    runCatching { sherpaSttRuntime.unload() }
-                    localModelStore.current().forEach { model ->
-                        runCatching { localModelInstall.delete(model) }
-                    }
-                    localModelStore.clear()
-                    sherpaModelStore.current().forEach { model ->
-                        runCatching { sherpaModelInstall.delete(model) }
-                    }
-                    sherpaModelStore.clear()
-                }
-            }
             val current = settings.value
             updateSettings(
                 current.copy(providers = current.providers.filter { it.id != provider.id })

@@ -114,7 +114,7 @@ import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.material3.Surface
+import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Close

@@ -352,7 +352,7 @@ internal fun findProviderModel(
 }
 
 /** The iOS-supported chat provider kind of a shared ProviderSetting, or null when the
- *  provider type cannot be used on iOS (LiteRT local, etc.). */
+ *  provider type is not supported on iOS. */
 internal fun chatProviderType(provider: ProviderSetting): IosProviderType? = when (provider) {
     is ProviderSetting.OpenAI -> IosProviderType.OPENAI
     is ProviderSetting.Google -> IosProviderType.GOOGLE

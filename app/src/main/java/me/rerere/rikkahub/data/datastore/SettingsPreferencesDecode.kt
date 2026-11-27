@@ -1,10 +1,17 @@
 package me.rerere.rikkahub.data.datastore
 
 import android.util.Log
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
+import me.rerere.ai.provider.ProviderSetting
 import me.rerere.common.http.jsonArrayOrNull
+import me.rerere.rikkahub.data.ai.mcp.McpServerConfig
 import me.rerere.rikkahub.data.model.Assistant
 import me.rerere.rikkahub.utils.JsonInstant
+import me.rerere.search.SearchServiceOptions
+import me.rerere.tts.provider.TTSProviderSetting
 import kotlin.uuid.Uuid
 
 private const val TAG = "SettingsDecode"
@@ -44,6 +51,44 @@ internal inline fun <reified T> decodePreferenceValue(json: String?, fallback: T
 
 private fun logDecodeError(message: String, error: Throwable) {
     runCatching { Log.w(TAG, message, error) }
+}
+
+/**
+ * Decode settings from a backup blob one polymorphic list entry at a time. Old backups may
+ * contain provider subtypes that no longer exist (e.g. an on-device provider); dropping just
+ * those entries keeps the rest of the settings — and the chats keyed by their assistant IDs —
+ * restorable.
+ */
+internal fun decodeSettingsFromBackup(raw: String): Settings? {
+    val element = runCatching { JsonInstant.parseToJsonElement(raw) }.getOrElse {
+        logDecodeError("Failed to parse backup settings JSON", it)
+        return null
+    }
+    val obj = element as? JsonObject ?: run {
+        logDecodeError("Backup settings JSON was not an object", IllegalArgumentException("Not a JSON object"))
+        return null
+    }
+    val sanitized = obj.toMap().toMutableMap().apply {
+        sanitizeEntryList<ProviderSetting>("providers")
+        sanitizeEntryList<Assistant>("assistants")
+        sanitizeEntryList<SearchServiceOptions>("searchServices")
+        sanitizeEntryList<McpServerConfig>("mcpServers")
+        sanitizeEntryList<TTSProviderSetting>("ttsProviders")
+    }
+    return runCatching { JsonInstant.decodeFromJsonElement<Settings>(JsonObject(sanitized)) }
+        .getOrElse {
+            logDecodeError("Failed to decode backup settings", it)
+            null
+        }
+}
+
+private inline fun <reified T> MutableMap<String, JsonElement>.sanitizeEntryList(key: String) {
+    val array = this[key] as? JsonArray ?: return
+    this[key] = JsonArray(array.filter { item ->
+        runCatching { JsonInstant.decodeFromJsonElement<T>(item) }
+            .onFailure { logDecodeError("Skipping invalid $key entry in backup settings", it) }
+            .isSuccess
+    })
 }
 
 internal fun decodeUuidOrNull(raw: String?): Uuid? {

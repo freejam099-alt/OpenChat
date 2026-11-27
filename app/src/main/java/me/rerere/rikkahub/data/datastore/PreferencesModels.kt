@@ -328,28 +328,6 @@ internal fun Settings.normalizeThemeId(): Settings {
 }
 
 /**
- * The on-device ([ProviderSetting.LiteRtLocal]) provider is an ordinary, user-managed provider: it is
- * NOT seeded by default and may be reordered or deleted like any other. This normalization only
- * collapses accidental duplicates (all [ProviderSetting.LiteRtLocal] share one stable id) into the
- * first occurrence, preserving its position and installed models. It never inserts one that is absent.
- */
-internal fun Settings.normalizeLocalProvider(): Settings {
-    val locals = providers.filterIsInstance<ProviderSetting.LiteRtLocal>()
-    if (locals.size <= 1) return this
-    val kept = locals.first()
-    var seen = false
-    val normalized = providers.mapNotNull { provider ->
-        if (provider is ProviderSetting.LiteRtLocal) {
-            if (seen) null else {
-                seen = true
-                kept
-            }
-        } else provider
-    }
-    return if (normalized == providers) this else copy(providers = normalized)
-}
-
-/**
  * Replaces the old Bing HTML scraper with Keyless (a router over free search backends) and
  * turns search on for Generical when that migration happens.
  */
@@ -668,6 +646,9 @@ internal fun Settings.clearMissingModelReferences(): Settings {
         suggestionModelId = suggestionModelId.ensureValidOrDisabled(chatFallback),
         ocrModelId = ocrModelId.ensureValid(multimodalFallback),
         embeddingModelId = embeddingModelId.ensureValidOrDisabled(embeddingFallback),
+        // A removed on-device STT provider would otherwise leave speech input enabled with
+        // no provider to serve it.
+        sttModelId = sttModelId.ensureValidOrNull(),
         favoriteModels = favoriteModels.filter { it in allModelIds },
         assistants = updatedAssistants,
         textSelectionConfig = textSelectionConfig.copy(

@@ -32,6 +32,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Spacer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.rikkahub.ui.components.ui.SearchProviderIcon
+import me.rerere.rikkahub.ui.components.ui.lastChatGlass
 import me.rerere.search.SearchServiceOptions
 import coil3.compose.AsyncImage
 import me.rerere.ai.ui.UIMessagePart
@@ -114,7 +115,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
+import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -1429,7 +1430,7 @@ private fun WorkspaceRequiredCard(
         shape = AppShapes.CardMedium,
         color = MaterialTheme.colorScheme.surfaceContainer,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth().lastChatGlass(AppShapes.CardMedium)
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -1498,7 +1499,7 @@ private fun CharacterQuestionsCard(
         shape = AppShapes.CardMedium,
         color = MaterialTheme.colorScheme.surfaceContainer,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth().lastChatGlass(AppShapes.CardMedium)
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -1668,7 +1669,7 @@ private fun ToolApprovalCard(
         shape = AppShapes.CardMedium,
         color = MaterialTheme.colorScheme.surfaceContainer,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)),
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth().lastChatGlass(AppShapes.CardMedium)
     ) {
         Column(
             modifier = Modifier.padding(14.dp),

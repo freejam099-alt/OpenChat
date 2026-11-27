@@ -13,6 +13,7 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowDpSize
 import androidx.compose.runtime.Composable
@@ -30,9 +31,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.hasRoute
 import androidx.navigation.toRoute
 
+import me.rerere.rikkahub.ui.components.nav.LastChatFloatingNavBar
 import me.rerere.rikkahub.ui.components.ui.AppToasterHost
 import me.rerere.rikkahub.ui.components.ui.ToastAction
 import me.rerere.rikkahub.ui.components.ui.ToastType
@@ -83,7 +87,6 @@ import me.rerere.rikkahub.ui.pages.setting.SettingChatStoragePage
 import me.rerere.rikkahub.ui.pages.setting.SettingDisplayPage
 
 import me.rerere.rikkahub.ui.pages.setting.SettingMcpPage
-// import me.rerere.rikkahub.ui.pages.setting.locallm.SettingLocalLlmPage
 import me.rerere.rikkahub.ui.pages.extensions.workspace.WorkspacePage
 import me.rerere.rikkahub.ui.pages.extensions.workspace.WorkspaceDetailPage
 import me.rerere.rikkahub.ui.pages.extensions.workspace.WorkspaceTerminalPage
@@ -110,7 +113,7 @@ import me.rerere.rikkahub.ui.pages.setting.SettingsDestination
 import me.rerere.rikkahub.share.ResolvedSharePayload
 import me.rerere.rikkahub.share.readResolvedSharePayload
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
-import me.rerere.rikkahub.ui.theme.RikkahubTheme
+import me.rerere.rikkahub.ui.theme.LastChatTheme
 import me.rerere.rikkahub.service.EXTRA_IS_SPONTANEOUS_NOTIFICATION
 import me.rerere.rikkahub.service.EXTRA_SPONTANEOUS_EVENT_ID
 import me.rerere.rikkahub.service.EXTRA_SPONTANEOUS_MESSAGE
@@ -373,7 +376,7 @@ class RouteActivity : ComponentActivity() {
             setContent {
                 val navStack = rememberNavController()
                 this.navStack = navStack
-                RikkahubTheme {
+                LastChatTheme {
                     val startScreen = initialChatScreen
                     if (startScreen == null) {
                         Box(
@@ -782,6 +785,19 @@ class RouteActivity : ComponentActivity() {
                         toastState.show(message, type = me.rerere.rikkahub.ui.components.ui.ToastType.Info)
                     }
                 }
+                // Global iOS-style floating navigation bar (Liquid Glass).
+                // Tab mapping: 0 = Chat (isolated AI surface), 1 = Provider,
+                // 2 = UI Customization, 3 = all other settings/features.
+                val navBackStackEntry by navBackStack.currentBackStackEntryAsState()
+                val navDestination = navBackStackEntry?.destination
+                val selectedFloatingTab = when {
+                    navDestination == null -> 0
+                    navDestination.hasRoute<Screen.Chat>() -> 0
+                    navDestination.hasRoute<Screen.SettingProvider>() ||
+                        navDestination.hasRoute<Screen.SettingProviderDetail>() -> 1
+                    navDestination.hasRoute<Screen.SettingUICustomization>() -> 2
+                    else -> 3
+                }
                 Box(modifier = Modifier.fillMaxSize()) {
                 TTSController()
                 val shouldShowSetup = !settings.init &&
@@ -804,7 +820,9 @@ class RouteActivity : ComponentActivity() {
                 NavHost(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
+                        .background(MaterialTheme.colorScheme.background)
+                        // Leave room for the global floating tab bar.
+                        .padding(bottom = 82.dp),
                     startDestination = actualStartDestination,
                     navController = navBackStack,
                     enterTransition = {
@@ -936,12 +954,6 @@ class RouteActivity : ComponentActivity() {
                     composable<Screen.BackupLocal> {
                         AdaptiveSettingsScaffold(selected = SettingsDestination.BackupLocal) {
                             BackupPage(initialTab = me.rerere.rikkahub.ui.pages.backup.BackupTab.Local)
-                        }
-                    }
-
-                    composable<Screen.SettingLocalLlm> {
-                        AdaptiveSettingsScaffold(selected = SettingsDestination.Providers) {
-                            me.rerere.rikkahub.ui.pages.setting.locallm.SettingLocalLlmPage()
                         }
                     }
 
@@ -1335,6 +1347,26 @@ class RouteActivity : ComponentActivity() {
                         WorkspaceTerminalPage(route.id)
                     }
                 }
+                // Global floating glass tab bar. It also stays visible on the chat screen;
+                // the chat surface itself carries no settings chrome.
+                LastChatFloatingNavBar(
+                    selectedIndex = selectedFloatingTab,
+                    onSelected = { index ->
+                        when (index) {
+                            0 -> navigateToChatPage(navBackStack)
+                            1 -> navBackStack.navigate(Screen.SettingProvider) {
+                                launchSingleTop = true
+                            }
+                            2 -> navBackStack.navigate(Screen.SettingUICustomization) {
+                                launchSingleTop = true
+                            }
+                            else -> navBackStack.navigate(Screen.Setting) {
+                                launchSingleTop = true
+                            }
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
                 // Toast host must be last so it renders on top of all content
                 AppToasterHost(state = toastState)
                 }
@@ -1401,9 +1433,6 @@ sealed interface Screen {
 
     @Serializable
     data class SettingProviderDetail(val providerId: String) : Screen
-
-    @Serializable
-    data object SettingLocalLlm : Screen
 
     @Serializable
     data class SettingTTSProviderDetail(val providerId: String) : Screen

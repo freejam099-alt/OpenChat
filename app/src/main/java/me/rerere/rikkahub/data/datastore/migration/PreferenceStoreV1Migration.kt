@@ -57,7 +57,9 @@ class PreferenceStoreV1Migration : DataMigration<Preferences> {
                         ?.get("type")
                         ?.jsonPrimitive
                         ?.contentOrNull
-                    if (type != "local") {
+                    // Both the legacy "local" provider and its later "litert_local" form
+                    // are on-device providers that no longer exist.
+                    if (type != "local" && type != "litert_local") {
                         add(element)
                     }
                 }

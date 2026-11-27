@@ -26,7 +26,6 @@ Guidance for AI coding agents (Claude Code, Codex, Cursor, etc.) working in this
 | `:highlight` | Android lib (Compose) | QuickJS + PrismJS syntax highlighter (single-threaded, max 4096 chars per block) |
 | `:document` | Android lib | PDF (MuPDF) + DOCX (XmlPullParser → Markdown) parsing |
 | `:workspace` | Android lib + CMake | On-device Linux sandbox via PRoot for AI tool use |
-| `:local-llm` | Android lib | On-device LLM inference via LiteRT-LM; `LiteRtProvider` (5th provider, `ProviderSetting.LiteRtLocal`), `LiteRtEmbedder` (on-device embeddings via EmbeddingGemma) |
 | `:app:baselineprofile` | `com.android.test` | Baseline Profile generator |
 | `web-ui/` | (non-Gradle) React Router 7 SPA | Embedded web frontend, built via `npm run build`, served by Ktor |
 

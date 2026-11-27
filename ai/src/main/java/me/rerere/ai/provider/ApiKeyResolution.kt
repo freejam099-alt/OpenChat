@@ -41,7 +41,7 @@ fun ProviderSetting.legacyApiKey(): String = when (this) {
     is ProviderSetting.Google -> apiKey
     is ProviderSetting.Claude -> apiKey
     is ProviderSetting.ComfyUI -> ""
-    is ProviderSetting.LiteRtLocal -> ""
+    else -> ""
 }
 
 fun ProviderSetting.withLegacyApiKey(newKey: String): ProviderSetting = when (this) {
@@ -49,7 +49,7 @@ fun ProviderSetting.withLegacyApiKey(newKey: String): ProviderSetting = when (th
     is ProviderSetting.Google -> copy(apiKey = newKey)
     is ProviderSetting.Claude -> copy(apiKey = newKey)
     is ProviderSetting.ComfyUI -> this
-    is ProviderSetting.LiteRtLocal -> this
+    else -> this
 }
 
 /**

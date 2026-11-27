@@ -298,7 +298,7 @@ class SettingsStore(
                 ttsProviders = ttsProviders,
                 selectedTTSVoiceId = selectedTtsVoiceId,
             ).normalizeWebServerSettings().normalizeFontSettings().normalizeTtsSettings()
-                .normalizeLocalProvider().normalizeSearchServices().normalizeMemorySettings()
+                .normalizeSearchServices().normalizeMemorySettings()
         }
         .map { settings ->
             // 去重并清理无效引用
@@ -325,9 +325,7 @@ class SettingsStore(
                                 .map { model -> model.withComfyDefaults() }
                         )
 
-                        is ProviderSetting.LiteRtLocal -> provider.copy(
-                            models = provider.models.distinctBy { model -> model.id }
-                        )
+                        else -> provider
                     }
                 },
                 assistants = settings.assistants.distinctBy { it.id }.map { assistant ->
@@ -480,7 +478,6 @@ class SettingsStore(
             .normalizeFontSettings()
             .normalizeThemeId()
             .normalizeTtsSettings()
-            .normalizeLocalProvider()
             .normalizeSearchServices()
             .normalizeMemorySettings()
             .clearMissingModelReferences()

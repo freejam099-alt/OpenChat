@@ -49,7 +49,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Surface
+import com.wexpa.liquidglass.material3.Surface
 import me.rerere.rikkahub.ui.components.ui.HapticSwitch
 import me.rerere.rikkahub.ui.motion.ExpandableContent
 import me.rerere.rikkahub.ui.components.ui.SummarizerModelTipBanner

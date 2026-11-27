@@ -42,13 +42,6 @@ val viewModelModule = module {
             modelCatalogService = get(),
             modelMetadataResolver = get(),
             memoryRepository = get(),
-            localModelStore = get(),
-            localModelInstall = get(),
-            liteRtRuntime = get(),
-            liteRtEmbedder = get(),
-            sherpaModelStore = get(),
-            sherpaModelInstall = get(),
-            sherpaSttRuntime = get(),
         )
     }
 
@@ -95,31 +88,6 @@ val viewModelModule = module {
         me.rerere.rikkahub.ui.activity.AssistantOverlayVM(
             settingsStore = get(),
             chatService = get(),
-        )
-    }
-    viewModel {
-        me.rerere.rikkahub.ui.pages.setting.locallm.SettingLocalLlmViewModel(
-            context = get(),
-            store = get(),
-            catalog = get(),
-            downloadManager = get(),
-            runtime = get(),
-            install = get(),
-            embedder = get(),
-            inferenceManager = get(),
-            settingsStore = get(),
-            modelCatalogService = get(),
-            secretKeyManager = get(),
-        )
-    }
-    viewModel {
-        me.rerere.rikkahub.ui.pages.setting.localstt.SettingLocalSttViewModel(
-            store = get(),
-            catalog = get(),
-            downloadManager = get(),
-            install = get(),
-            runtime = get(),
-            settingsStore = get(),
         )
     }
     viewModel { me.rerere.rikkahub.ui.pages.extensions.workspace.WorkspaceVM(get()) }

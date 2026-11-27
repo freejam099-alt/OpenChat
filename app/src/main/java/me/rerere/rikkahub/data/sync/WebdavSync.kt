@@ -12,6 +12,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import me.rerere.rikkahub.data.datastore.Settings
 import me.rerere.rikkahub.data.datastore.SettingsStore
+import me.rerere.rikkahub.data.datastore.decodeSettingsFromBackup
 import me.rerere.rikkahub.data.datastore.SecretKeyManager
 import me.rerere.rikkahub.data.datastore.WebDavConfig
 import me.rerere.rikkahub.data.datastore.sanitize
@@ -466,14 +467,17 @@ class WebdavSync(
                 }
 
                 val sanitizedSettings = settingsJson?.let { rawSettingsJson ->
-                    try {
-                        val parsedSettings = json.decodeFromString<Settings>(rawSettingsJson)
-                        parsedSettings.sanitize().also { (_, cleanup) ->
-                            settingsCleanupResult = cleanup
-                        }
+                    val parsedSettings = try {
+                        json.decodeFromString<Settings>(rawSettingsJson)
                     } catch (e: Exception) {
-                        LogUtil.e(TAG, "restoreFromBackupFile: Failed to parse settings", e)
-                        throw Exception("Failed to restore settings: ${e.message}")
+                        // Old backups can contain provider subtypes that no longer exist.
+                        // Retry tolerant, per-element decoding before giving up.
+                        LogUtil.w(TAG, "restoreFromBackupFile: Strict settings decode failed, retrying per element", e)
+                        decodeSettingsFromBackup(rawSettingsJson)
+                            ?: throw Exception("Failed to restore settings: ${e.message}")
+                    }
+                    parsedSettings.sanitize().also { (_, cleanup) ->
+                        settingsCleanupResult = cleanup
                     }
                 }
 

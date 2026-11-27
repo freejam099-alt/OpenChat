@@ -960,7 +960,7 @@ private fun ProviderSetting.toWebProviderDto(
             is ProviderSetting.Google -> "google"
             is ProviderSetting.Claude -> "claude"
             is ProviderSetting.ComfyUI -> "comfyui"
-            is ProviderSetting.LiteRtLocal -> "litert_local"
+            else -> "openai"
         },
         enabled = enabled,
         name = name,

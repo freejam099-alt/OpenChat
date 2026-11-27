@@ -39,6 +39,37 @@ class SettingsPreferencesDecodeTest {
     }
 
     @Test
+    fun `legacy litert_local provider is skipped or decoded as an inert tombstone`() {
+        val kept = ProviderSetting.OpenAI(
+            id = Uuid.parse("44444444-4444-4444-4444-444444444444"),
+            name = "OpenRouter",
+            baseUrl = "https://openrouter.ai/api/v1",
+        )
+        val json = """
+            [
+              ${JsonInstant.encodeToString(ProviderSetting.serializer(), kept)},
+              {
+                "type": "litert_local",
+                "id": "55555555-5555-5555-5555-555555555555",
+                "enabled": true,
+                "name": "On-device",
+                "models": [],
+                "proxy": { "type": "none" },
+                "balanceOption": {},
+                "tags": []
+              }
+            ]
+        """.trimIndent()
+
+        val decoded = decodePreferenceList<ProviderSetting>(json)
+
+        // The legacy entry is either skipped entirely or decoded as an inert tombstone:
+        // either way it must never contribute a usable model.
+        assertEquals(kept, decoded?.firstOrNull())
+        assertTrue(decoded?.all { it.id == kept.id || it.models.isEmpty() } == true)
+    }
+
+    @Test
     fun `invalid search service does not wipe assistants`() {
         val assistantId = Uuid.parse("0950e2dc-9bd5-4801-afa3-aa887aa36b4e")
         val assistantsJson = JsonInstant.encodeToString(

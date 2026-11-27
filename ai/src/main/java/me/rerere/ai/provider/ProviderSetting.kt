@@ -271,15 +271,15 @@ sealed class ProviderSetting {
     }
 
     /**
-     * On-device inference via LiteRT-LM. Unlike network providers this has no API key / base URL —
-     * its [models] are the models the user has downloaded onto the device. It is user-managed and
-     * can be reordered or deleted like any other provider; see the app's settings normalization.
+     * Serialization-only tombstone. Kept solely so settings persisted with the retired on-device
+     * provider (and strict WebDAV restores) can still decode. It has no behavior, is not registered
+     * with a provider implementation, and is deliberately absent from [Types].
      */
     @Serializable
     @SerialName("litert_local")
     data class LiteRtLocal(
-        override val id: Uuid = LOCAL_PROVIDER_ID,
-        override val enabled: Boolean = true,
+        override val id: Uuid = Uuid.NIL,
+        override val enabled: Boolean = false,
         override val name: String = "Local",
         override val models: List<Model> = emptyList(),
         override val proxy: ProviderProxy = ProviderProxy.None,
@@ -288,17 +288,10 @@ sealed class ProviderSetting {
         override val customIconUri: String? = null,
         @Transient override val builtIn: Boolean = true,
     ) : ProviderSetting() {
-        override fun addModel(model: Model): ProviderSetting = copy(models = models + model)
-
-        override fun editModel(model: Model): ProviderSetting =
-            copy(models = models.map { if (it.id == model.id) model.copy() else it })
-
-        override fun delModel(model: Model): ProviderSetting =
-            copy(models = models.filter { it.id != model.id })
-
-        override fun moveModel(from: Int, to: Int): ProviderSetting =
-            copy(models = models.toMutableList().apply { add(to, removeAt(from)) })
-
+        override fun addModel(model: Model): ProviderSetting = this
+        override fun editModel(model: Model): ProviderSetting = this
+        override fun delModel(model: Model): ProviderSetting = this
+        override fun moveModel(from: Int, to: Int): ProviderSetting = this
         override fun copyProvider(
             id: Uuid,
             enabled: Boolean,
@@ -309,23 +302,10 @@ sealed class ProviderSetting {
             tags: List<Uuid>,
             customIconUri: String?,
             builtIn: Boolean,
-        ): ProviderSetting = this.copy(
-            id = id,
-            enabled = enabled,
-            name = name,
-            models = models,
-            proxy = proxy,
-            balanceOption = balanceOption,
-            tags = tags,
-            customIconUri = customIconUri,
-            builtIn = builtIn,
-        )
+        ): ProviderSetting = this
     }
 
     companion object {
-        /** Stable id of the single on-device provider. */
-        val LOCAL_PROVIDER_ID: Uuid = Uuid.parse("10ca110c-0ca1-4b0c-a10c-10ca110c10ca")
-
         val Types by lazy {
             listOf(
                 OpenAI::class,
@@ -429,7 +409,7 @@ fun ProviderSetting.withApiKeyPool(newPool: List<ApiKeyEntry>): ProviderSetting 
         is ProviderSetting.Google -> copy(apiKeyPool = newPool)
         is ProviderSetting.Claude -> copy(apiKeyPool = newPool)
         is ProviderSetting.ComfyUI -> this
-        is ProviderSetting.LiteRtLocal -> this
+        else -> this
     }
 }
 
@@ -439,7 +419,7 @@ fun ProviderSetting.withKeyPoolConfig(newConfig: KeyPoolConfig): ProviderSetting
         is ProviderSetting.Google -> copy(keyPoolConfig = newConfig)
         is ProviderSetting.Claude -> copy(keyPoolConfig = newConfig)
         is ProviderSetting.ComfyUI -> this
-        is ProviderSetting.LiteRtLocal -> this
+        else -> this
     }
 }
 

@@ -1997,11 +1997,7 @@ class GenerationHandler(
                                 breakdown = estimate,
                                 promptTokens = usage.promptTokens,
                                 model = model,
-                                confidence = if (provider is ProviderSetting.LiteRtLocal) {
-                                    me.rerere.ai.context.ContextCountConfidence.EXACT
-                                } else {
-                                    me.rerere.ai.context.ContextCountConfidence.PROVIDER_COUNTED
-                                },
+                                confidence = me.rerere.ai.context.ContextCountConfidence.PROVIDER_COUNTED,
                             )
                         )
                     }
@@ -2050,11 +2046,7 @@ class GenerationHandler(
                             breakdown = estimate,
                             promptTokens = usage.promptTokens,
                             model = model,
-                            confidence = if (provider is ProviderSetting.LiteRtLocal) {
-                                me.rerere.ai.context.ContextCountConfidence.EXACT
-                            } else {
-                                me.rerere.ai.context.ContextCountConfidence.PROVIDER_COUNTED
-                            },
+                            confidence = me.rerere.ai.context.ContextCountConfidence.PROVIDER_COUNTED,
                         )
                     )
                 }

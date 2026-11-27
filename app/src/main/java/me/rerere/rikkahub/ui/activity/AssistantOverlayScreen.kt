@@ -66,7 +66,7 @@ import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -139,7 +139,6 @@ import me.rerere.rikkahub.ui.modifier.lastChatBlurEffect
 import me.rerere.rikkahub.ui.modifier.lastChatBlurSource
 import me.rerere.rikkahub.ui.modifier.shimmer
 import me.rerere.rikkahub.utils.copyMessageToClipboard
-import me.rerere.rikkahub.utils.toLocalInferenceUserMessage
 import org.koin.compose.koinInject
 import kotlin.math.PI
 import kotlin.math.cos
@@ -231,8 +230,8 @@ fun AssistantOverlayScreen(
 
     // Surface ChatService errors as toasts.
     LaunchedEffect(Unit) {
-        viewModel.errorFlow.collect { error ->
-            toaster.show(error.toLocalInferenceUserMessage(context) ?: "Error", type = ToastType.Error)
+        viewModel.errorFlow.collect {
+            toaster.show("Error", type = ToastType.Error)
         }
     }
 

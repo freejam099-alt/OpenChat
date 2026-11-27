@@ -28,7 +28,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import me.rerere.rikkahub.data.datastore.SettingsStore
-import me.rerere.rikkahub.data.datastore.syncInstalledLocalModelsToSettings
 import me.rerere.rikkahub.data.datastore.withRecoveredAssistantsFromConversations
 import me.rerere.rikkahub.data.ai.models.ModelMetadataResolver
 import me.rerere.rikkahub.data.ai.models.ModelCatalogService
@@ -53,7 +52,6 @@ import me.rerere.rikkahub.data.search.AndroidBingSearchClient
 import java.util.concurrent.TimeUnit
 import org.koin.core.context.startKoin
 import me.rerere.common.platform.PlatformHttpClient
-import me.rerere.common.inference.LocalInferenceManager
 import me.rerere.rikkahub.di.SEARCH_PLATFORM_HTTP_CLIENT
 import me.rerere.rikkahub.utils.acceptLanguageHeader
 import me.rerere.search.SearchService
@@ -70,7 +68,6 @@ private const val MEMORY_MAINTENANCE_WORK_NAME = "memory_consolidation_automatic
 
 const val CHAT_COMPLETED_NOTIFICATION_CHANNEL_ID = "chat_completed"
 const val WEB_SERVER_NOTIFICATION_CHANNEL_ID = "web_server"
-const val LOCAL_MODEL_DOWNLOAD_NOTIFICATION_CHANNEL_ID = "local_model_download"
 const val WORKSPACE_ENVIRONMENT_NOTIFICATION_CHANNEL_ID = "workspace_environment"
 
 class LastChatApp : Application(), SingletonImageLoader.Factory {
@@ -217,16 +214,6 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
             }.onFailure {
                 Log.w(TAG, "Model catalog warm-up failed", it)
             }
-            runCatching {
-                syncInstalledLocalModelsToSettings(
-                    installed = get<me.rerere.locallm.LocalModelStore>().current(),
-                    totalRamGb = me.rerere.locallm.MemoryGuard.deviceTotalRamGb(this@LastChatApp),
-                    settingsStore = get<SettingsStore>(),
-                    catalogSnapshot = get<ModelCatalogService>().snapshotFlow.value,
-                )
-            }.onFailure {
-                Log.w(TAG, "Local model metadata sync failed", it)
-            }
         }
     }
 
@@ -277,14 +264,6 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
             .setName(getString(R.string.notification_channel_spontaneous))
             .setVibrationEnabled(true)
             .build()
-        val localModelDownloadChannel = NotificationChannelCompat
-            .Builder(
-                LOCAL_MODEL_DOWNLOAD_NOTIFICATION_CHANNEL_ID,
-                NotificationManagerCompat.IMPORTANCE_LOW
-            )
-            .setName(getString(R.string.notification_channel_local_model_downloads))
-            .setVibrationEnabled(false)
-            .build()
         val workspaceEnvironmentChannel = NotificationChannelCompat
             .Builder(
                 WORKSPACE_ENVIRONMENT_NOTIFICATION_CHANNEL_ID,
@@ -296,7 +275,6 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
         notificationManager.createNotificationChannel(chatCompletedChannel)
         notificationManager.createNotificationChannel(webServerChannel)
         notificationManager.createNotificationChannel(spontaneousChannel)
-        notificationManager.createNotificationChannel(localModelDownloadChannel)
         notificationManager.createNotificationChannel(workspaceEnvironmentChannel)
     }
 
@@ -310,7 +288,6 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
         if (level >= android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW ||
             level == android.content.ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN
         ) {
-            runCatching { get<LocalInferenceManager>().requestEviction() }
             runCatching { coil3.SingletonImageLoader.get(this).memoryCache?.clear() }
             runCatching { get<me.rerere.rikkahub.service.ChatService>().checkAllConversationsReferences() }
             runCatching { me.rerere.rikkahub.data.model.clearCompiledRegexCache() }
@@ -323,7 +300,6 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
 
     override fun onLowMemory() {
         super.onLowMemory()
-        runCatching { get<LocalInferenceManager>().requestEviction() }
         runCatching { coil3.SingletonImageLoader.get(this).memoryCache?.clear() }
         runCatching { get<me.rerere.rikkahub.service.ChatService>().checkAllConversationsReferences() }
         runCatching { me.rerere.rikkahub.data.model.clearCompiledRegexCache() }

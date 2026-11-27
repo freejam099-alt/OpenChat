@@ -399,67 +399,12 @@ val dataSourceModule = module {
         }
     }
 
-    // On-device (LiteRT-LM) provider stack
-    single { me.rerere.locallm.LocalModelStore(get()) }
-    single { me.rerere.locallm.LiteRtCatalog(get()) }
-    single { 
-        me.rerere.locallm.ModelInstall(
-            context = get(),
-            huggingFaceTokenProvider = { get<me.rerere.rikkahub.data.datastore.SecretKeyManager>().getHuggingFaceToken() }
-        ) 
-    }
-    single {
-        me.rerere.locallm.LocalDownloadManager(
-            context = get(),
-            install = get(),
-            store = get(),
-            catalog = get(),
-        )
-    }
-    single { me.rerere.locallm.LiteRtRuntime(context = get(), store = get()) }
-    single { me.rerere.locallm.LiteRtEmbedder(context = get()) }
-    single<me.rerere.common.inference.LocalInferenceManager> {
-        me.rerere.rikkahub.data.ai.local.AndroidLocalInferenceManager(
-            liteRtRuntime = get(),
-            embedder = get(),
-            speechRuntime = get(),
-        )
-    }
-    single {
-        me.rerere.locallm.litert.LiteRtProvider(
-            context = get(),
-            runtime = get(),
-            store = get(),
-            embedder = get(),
-            inferenceManager = get(),
-        )
-    }
-
-    // On-device speech recognition (sherpa-onnx) stack
-    single { me.rerere.asr.local.SherpaModelStore(get()) }
-    single { me.rerere.asr.local.SherpaCatalog(get()) }
-    single { me.rerere.asr.local.SherpaModelInstall(get()) }
-    single {
-        me.rerere.asr.local.SherpaDownloadManager(
-            context = get(),
-            install = get(),
-            store = get(),
-        )
-    }
-    single { me.rerere.asr.local.SherpaSttRuntime() }
-
     single {
         ProviderManager(
             platformHttpClient = get(),
             platformMediaEncoder = AndroidPlatformMediaEncoder(),
             platformJwtSigner = AndroidPlatformJwtSigner(),
-        ).apply {
-            // The on-device provider lives in :local-llm, so register it here (see ProviderManager).
-            registerProvider(
-                me.rerere.locallm.litert.LiteRtProvider.NAME,
-                get<me.rerere.locallm.litert.LiteRtProvider>(),
-            )
-        }
+        )
     }
 
     single {

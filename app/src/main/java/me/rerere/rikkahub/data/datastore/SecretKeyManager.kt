@@ -28,7 +28,6 @@ class SecretKeyManager(
         private const val TTS_PROVIDER_APIKEY_PREFIX = "tts_provider_apikey_"
         private const val STT_PROVIDER_APIKEY_PREFIX = "stt_provider_apikey_"
         private const val WEBDAV_PASSWORD_KEY = "webdav_password"
-        private const val HUGGINGFACE_TOKEN_KEY = "huggingface_token"
         private const val MCP_OAUTH_PREFIX = "mcp_oauth_"
     }
 
@@ -168,20 +167,6 @@ class SecretKeyManager(
             secureStore.putSecret(WEBDAV_PASSWORD_KEY, password)
         } else {
             secureStore.removeSecret(WEBDAV_PASSWORD_KEY)
-        }
-    }
-
-    // ========== HuggingFace Token Management ==========
-
-    fun getHuggingFaceToken(): String? {
-        return secureStore.getSecret(HUGGINGFACE_TOKEN_KEY)
-    }
-
-    fun setHuggingFaceToken(token: String) {
-        if (token.isNotBlank()) {
-            secureStore.putSecret(HUGGINGFACE_TOKEN_KEY, token)
-        } else {
-            secureStore.removeSecret(HUGGINGFACE_TOKEN_KEY)
         }
     }
 
@@ -435,7 +420,7 @@ class SecretKeyManager(
             }
 
             is ProviderSetting.ComfyUI -> updated
-            is ProviderSetting.LiteRtLocal -> updated // on-device, no secrets
+            else -> updated
         }
     }
 
@@ -646,9 +631,7 @@ class SecretKeyManager(
             is ProviderSetting.ComfyUI -> provider.copy(
                 models = provider.models.map { hydrateModelProviderOverwrite(it) },
             )
-            is ProviderSetting.LiteRtLocal -> provider.copy(
-                models = provider.models.map { hydrateModelProviderOverwrite(it) },
-            )
+            else -> provider
         }
 
         updated.resolvedApiKeyPool = resolvedPool

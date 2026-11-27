@@ -9,7 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.ai.provider.Model
 import androidx.compose.ui.draw.clip
-import androidx.compose.material3.Switch
+import com.wexpa.liquidglass.material3.Switch
 import androidx.compose.material3.SuggestionChip
 import org.koin.core.parameter.parametersOf
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,10 +54,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
+import com.wexpa.liquidglass.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Surface
+import com.wexpa.liquidglass.material3.SingleChoiceSegmentedButtonRow
+import com.wexpa.liquidglass.material3.Surface
 import me.rerere.rikkahub.ui.components.ui.HapticSwitch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -171,7 +171,7 @@ fun ProviderConfigure(
                             is ProviderSetting.Google -> provider.copy(enabled = enabled)
                             is ProviderSetting.Claude -> provider.copy(enabled = enabled)
                             is ProviderSetting.ComfyUI -> provider.copy(enabled = enabled)
-                            is ProviderSetting.LiteRtLocal -> provider.copy(enabled = enabled)
+                            else -> provider
                         }
                         onEdit(updated)
                     }
@@ -222,7 +222,7 @@ fun ProviderConfigure(
                         is ProviderSetting.Google -> provider.copy(name = newName)
                         is ProviderSetting.Claude -> provider.copy(name = newName)
                         is ProviderSetting.ComfyUI -> provider.copy(name = newName)
-                        is ProviderSetting.LiteRtLocal -> provider.copy(name = newName)
+                        else -> provider
                     }
                     onEdit(updated)
                 },
@@ -250,8 +250,6 @@ fun ProviderConfigure(
             is ProviderSetting.ComfyUI -> {
                 ProviderConfigureComfyUI(provider, onEdit)
             }
-
-            is ProviderSetting.LiteRtLocal -> Unit // configured via the dedicated on-device screen
         }
     }
 }
@@ -364,7 +362,7 @@ fun ProviderSetting.convertTo(type: KClass<out ProviderSetting>): ProviderSettin
         is ProviderSetting.Google -> this.apiKey
         is ProviderSetting.Claude -> this.apiKey
         is ProviderSetting.ComfyUI -> ""
-        is ProviderSetting.LiteRtLocal -> ""
+        else -> ""
     }
 
     val sourceBaseUrl = when (this) {
