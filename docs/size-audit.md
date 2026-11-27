@@ -1,6 +1,6 @@
 # Arm64 release APK — size audit
 
-Target: **~30 MB** untuk APK arm64 release. **Hasil build GitHub Actions (signed, arm64): 49 MB** — target belum tercapai.
+Target: **31–35 MB** untuk APK arm64 release. **Hasil awal: 49 MB → hasil akhir: 28 MB** (signed arm64, CI sukses). Target terlampaui (lebih kecil).
 
 ## Hasil ukur (CI, 2026-11-27)
 
@@ -15,7 +15,16 @@ Komposisi (unzip -l, ukuran sebelum kompresi ZIP internal):
 | `classes.dex` + `classes2.dex` | 18,68 MB | Firebase, ML Kit, Ktor, Coil, Pebble, MCP, Room, Compose |
 | `res/` + `resources.arsc` | 10,03 MB | font 3,9 MB, placeholder PNG 2,2 MB, 7 locale |
 
-## Kandidat pemotongan (perlu konfirmasi — mengubah fitur)
+## Pemotongan yang sudah diterapkan (menghasilkan 28 MB)
+- `:document` + MuPDF dihapus (PDF/DOCX sebagai prompt tidak didukung).
+- ML Kit barcode + CameraX + Quickie dihapus (QR scanner tidak ada).
+- Bundle `web-ui` tidak lagi dimasukkan ke APK (server Ktor/API tetap ada).
+- Firebase Crashlytics + RemoteConfig dihapus.
+- QuickJS native + JS tool dihapus; highlighter menjadi plain text.
+- Tombol "+"/picker dibungkus guard agar tidak force-close, navbar diberi padding 104 dp.
+- Glass polish: input bar (Kyant0 cylinder), FAB, search, send, chip saran, kartu apung.
+
+## Kandidat pemotongan lanjutan (bila diperlukan)
 
 | Prioritas | Potong | Estimasi hemat | Dampak |
 |---|---|---:|---|
