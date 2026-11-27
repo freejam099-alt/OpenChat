@@ -1,8 +1,5 @@
 package me.rerere.rikkahub.ui.pages.setting
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -38,7 +35,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.ui.draw.clipToBounds
@@ -67,33 +63,30 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Input
 import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Cloud
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DragIndicator
 import androidx.compose.material.icons.rounded.GridView
-import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.ViewList
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetDefaults
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import me.rerere.rikkahub.ui.components.ui.lastChatGlass
+import me.rerere.rikkahub.ui.components.ui.lastChatGlassInteractive
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
@@ -130,7 +123,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -138,11 +130,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import me.rerere.rikkahub.ui.components.ui.ToastType
 import me.rerere.rikkahub.ui.components.ui.LastChatDestructiveConfirmDialog
-import me.rerere.rikkahub.ui.components.ui.AppToasterState
-import io.github.g00fy2.quickie.QRResult
-import io.github.g00fy2.quickie.ScanQRCode
 import kotlinx.coroutines.launch
 import me.rerere.ai.provider.ProviderSetting
 import me.rerere.common.platform.PlatformHttpClient
@@ -158,16 +146,11 @@ import me.rerere.rikkahub.ui.components.ui.listItemShape
 import me.rerere.rikkahub.ui.components.ui.PhysicsSwipeToDelete
 import me.rerere.rikkahub.ui.components.ui.Tag
 import me.rerere.rikkahub.ui.components.ui.TagType
-import me.rerere.rikkahub.ui.components.ui.ProviderShareQrContent
-import me.rerere.rikkahub.ui.components.ui.ProviderShareQrPart
 import me.rerere.rikkahub.ui.components.ui.computeAIIconByName
-import me.rerere.rikkahub.ui.components.ui.decodeProviderSettingParts
 import me.rerere.rikkahub.ui.components.ui.getProviderSlugFromName
-import me.rerere.rikkahub.ui.components.ui.parseProviderShareQrContent
 import me.rerere.rikkahub.ui.components.ui.searchLobeHubIcon
 import me.rerere.rikkahub.ui.components.ui.lobeHubIconUri
 import me.rerere.rikkahub.ui.context.LocalNavController
-import me.rerere.rikkahub.ui.context.LocalToaster
 import me.rerere.rikkahub.ui.hooks.HapticPattern
 import me.rerere.rikkahub.ui.hooks.rememberPremiumHaptics
 import me.rerere.rikkahub.ui.hooks.useEditState
@@ -178,7 +161,6 @@ import me.rerere.rikkahub.ui.pages.setting.components.toProviderPresets
 import me.rerere.rikkahub.ui.pages.setting.components.withSpecialProviderPresets
 import me.rerere.rikkahub.ui.theme.AppShapes
 import me.rerere.tts.provider.withDefaultVoices
-import me.rerere.rikkahub.utils.ImageUtils
 import me.rerere.rikkahub.utils.plus
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -291,36 +273,28 @@ fun SettingProviderPage(
                     }
                 }
             ) {
-                if (useWideLayout) {
-                    when (currentTab) {
-                        ProvidersTab.Models -> ImportProviderButton(
-                            asFab = true,
-                            enableHaptics = settings.displaySetting.enableUIHaptics,
-                            onAdd = { addProvider(it) }
+                if (useWideLayout && currentTab != ProvidersTab.Models) {
+                    FloatingActionButton(
+                        onClick = {
+                            haptics.perform(HapticPattern.Pop)
+                            if (currentTab == ProvidersTab.Search) {
+                                showSearchCommonOptions = true
+                            } else {
+                                showTtsFilterSettings = true
+                            }
+                        },
+                        modifier = Modifier.lastChatGlassInteractive(AppShapes.CardLarge),
+                        shape = AppShapes.CardLarge,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ) {
+                        Icon(
+                            Icons.Rounded.Settings,
+                            contentDescription = when (currentTab) {
+                                ProvidersTab.Search -> stringResource(R.string.setting_page_search_common_options)
+                                else -> stringResource(R.string.setting_tts_settings_title)
+                            }
                         )
-
-                        ProvidersTab.Search,
-                        ProvidersTab.Tts -> FloatingActionButton(
-                            onClick = {
-                                haptics.perform(HapticPattern.Pop)
-                                if (currentTab == ProvidersTab.Search) {
-                                    showSearchCommonOptions = true
-                                } else {
-                                    showTtsFilterSettings = true
-                                }
-                            },
-                            shape = AppShapes.CardLarge,
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ) {
-                            Icon(
-                                Icons.Rounded.Settings,
-                                contentDescription = when (currentTab) {
-                                    ProvidersTab.Search -> stringResource(R.string.setting_page_search_common_options)
-                                    else -> stringResource(R.string.setting_tts_settings_title)
-                                }
-                            )
-                        }
                     }
                 }
                 when (currentTab) {
@@ -389,7 +363,8 @@ fun SettingProviderPage(
                 placeholder = { Text(stringResource(R.string.setting_provider_page_search_placeholder)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .lastChatGlass(me.rerere.rikkahub.ui.theme.AppShapes.SearchField),
                 shape = me.rerere.rikkahub.ui.theme.AppShapes.SearchField,
                 singleLine = true,
                 leadingIcon = { Icon(Icons.Rounded.Search, null) },
@@ -458,15 +433,6 @@ fun SettingProviderPage(
                 )
             }
                     }
-                    if (!useWideLayout) {
-                        ProvidersSecondaryActionSlot(modifier = Modifier.fillMaxSize()) {
-                            ImportProviderButton(
-                                asFab = true,
-                                enableHaptics = settings.displaySetting.enableUIHaptics,
-                                onAdd = { addProvider(it) }
-                            )
-                        }
-                    }
                 }
 
                 ProvidersTab.Search -> SearchProvidersContent(vm = vm, contentPadding = innerPadding)
@@ -494,6 +460,7 @@ fun SettingProviderPage(
                                 showTtsFilterSettings = true
                             }
                         },
+                        modifier = Modifier.lastChatGlassInteractive(AppShapes.CardLarge),
                         shape = AppShapes.CardLarge,
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurface
@@ -559,7 +526,7 @@ private fun SearchBarWithToggle(
             value = searchQuery,
             onValueChange = onSearchQueryChange,
             placeholder = { Text(stringResource(R.string.setting_provider_page_search_placeholder)) },
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f).lastChatGlass(AppShapes.SearchField),
             shape = AppShapes.SearchField,
             singleLine = true,
             leadingIcon = { Icon(Icons.Rounded.Search, null) },
@@ -844,449 +811,12 @@ private fun ProviderListView(
     }
 }
 
-@Composable
-private fun ImportProviderButton(
-    asFab: Boolean = false,
-    enableHaptics: Boolean,
-    onAdd: (ProviderSetting) -> Unit
-) {
-    val toaster = LocalToaster.current
-    val context = LocalContext.current
-    val haptics = rememberPremiumHaptics(enabled = enableHaptics)
-    var showImportDialog by remember { mutableStateOf(false) }
-    var importSession by remember { mutableStateOf<ProviderQrImportSession?>(null) }
-
-    val scanQrCodeLauncher = rememberLauncherForActivityResult(ScanQRCode()) { result ->
-        handleQRResult(
-            result = result,
-            onAdd = onAdd,
-            toaster = toaster,
-            context = context,
-            importSession = importSession,
-            onImportSessionChange = { importSession = it },
-            onSuccess = { haptics.perform(HapticPattern.Success) },
-            onProgress = { haptics.perform(HapticPattern.Pop) },
-            onError = { haptics.perform(HapticPattern.Error) }
-        )
-    }
-
-    val pickImageLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let {
-            handleImageQRCode(
-                uri = it,
-                onAdd = onAdd,
-                toaster = toaster,
-                context = context,
-                importSession = importSession,
-                onImportSessionChange = { session -> importSession = session },
-                onSuccess = { haptics.perform(HapticPattern.Success) },
-                onProgress = { haptics.perform(HapticPattern.Pop) },
-                onError = { haptics.perform(HapticPattern.Error) }
-            )
-        }
-    }
-
-    val openImportDialog = {
-        haptics.perform(HapticPattern.Pop)
-        showImportDialog = true
-    }
-
-    if (asFab) {
-        FloatingActionButton(
-            onClick = openImportDialog,
-            shape = AppShapes.CardLarge,
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        ) {
-            Icon(Icons.AutoMirrored.Rounded.Input, stringResource(R.string.import_label))
-        }
-    } else {
-        IconButton(onClick = openImportDialog) {
-            Icon(Icons.AutoMirrored.Rounded.Input, null)
-        }
-    }
-
-    if (showImportDialog) {
-        AlertDialog(
-            onDismissRequest = { showImportDialog = false },
-            title = {
-                Text(
-                    text = stringResource(R.string.setting_provider_page_import_dialog_title),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.setting_provider_page_import_dialog_message),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                haptics.perform(HapticPattern.Pop)
-                                showImportDialog = false
-                                scanQrCodeLauncher.launch(null)
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = MaterialTheme.shapes.large
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.CameraAlt,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text(
-                                    text = stringResource(R.string.setting_provider_page_scan_qr_code),
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            }
-                        }
-
-                        OutlinedButton(
-                            onClick = {
-                                haptics.perform(HapticPattern.Pop)
-                                showImportDialog = false
-                                pickImageLauncher.launch(
-                                    androidx.activity.result.PickVisualMediaRequest(
-                                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                                    )
-                                )
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(56.dp),
-                            shape = MaterialTheme.shapes.large
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Image,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Text(
-                                    text = stringResource(R.string.setting_provider_page_select_from_gallery),
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {},
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        haptics.perform(HapticPattern.Cancel)
-                        showImportDialog = false
-                    },
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text(
-                        text = stringResource(R.string.cancel),
-                        style = MaterialTheme.typography.labelLarge
-                    )
-                }
-            }
-        )
-    }
-
-    importSession?.let { session ->
-        AlertDialog(
-            onDismissRequest = {},
-            title = {
-                Text(
-                    text = stringResource(R.string.setting_provider_page_multi_qr_title),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-            },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        text = stringResource(
-                            R.string.setting_provider_page_multi_qr_message,
-                            session.scannedCount,
-                            session.total
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.setting_provider_page_multi_qr_parts,
-                            session.scannedIndexes
-                        ),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        haptics.perform(HapticPattern.Pop)
-                        scanQrCodeLauncher.launch(null)
-                    },
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text(stringResource(R.string.setting_provider_page_scan_next_qr))
-                }
-            },
-            dismissButton = {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(
-                        onClick = {
-                            haptics.perform(HapticPattern.Pop)
-                            importSession = session.removeLastScannedPart()
-                        },
-                        shape = MaterialTheme.shapes.large
-                    ) {
-                        Text(stringResource(R.string.setting_provider_page_back_step))
-                    }
-                    TextButton(
-                        onClick = {
-                            haptics.perform(HapticPattern.Cancel)
-                            importSession = null
-                        },
-                        shape = MaterialTheme.shapes.large
-                    ) {
-                        Text(stringResource(R.string.cancel))
-                    }
-                }
-            }
-        )
-    }
-}
-
 private fun ProviderSetting.withUniqueId(existingProviders: List<ProviderSetting>): ProviderSetting {
     if (existingProviders.none { it.id == id }) {
         return this
     }
     return copyProvider(id = Uuid.random())
 }
-
-private data class ProviderQrImportSession(
-    val transferId: String,
-    val total: Int,
-    val parts: Map<Int, ProviderShareQrPart>,
-    val scanOrder: List<Int>
-) {
-    val scannedCount: Int get() = parts.size
-    val scannedIndexes: String get() = parts.keys.sorted().joinToString(", ")
-
-    fun removeLastScannedPart(): ProviderQrImportSession? {
-        val lastIndex = scanOrder.lastOrNull() ?: return null
-        val nextParts = parts - lastIndex
-        val nextScanOrder = scanOrder.dropLast(1)
-        return if (nextParts.isEmpty()) {
-            null
-        } else {
-            copy(parts = nextParts, scanOrder = nextScanOrder)
-        }
-    }
-}
-
-private fun handleQRResult(
-    result: QRResult,
-    onAdd: (ProviderSetting) -> Unit,
-    toaster: AppToasterState,
-    context: android.content.Context,
-    importSession: ProviderQrImportSession?,
-    onImportSessionChange: (ProviderQrImportSession?) -> Unit,
-    onSuccess: () -> Unit,
-    onProgress: () -> Unit,
-    onError: () -> Unit
-) {
-    runCatching {
-        when (result) {
-            is QRResult.QRError -> {
-                onError()
-                toaster.show(
-                    context.getString(
-                        R.string.setting_provider_page_scan_error,
-                        result
-                    ), type = ToastType.Error
-                )
-            }
-
-            QRResult.QRMissingPermission -> {
-                onError()
-                toaster.show(
-                    context.getString(R.string.setting_provider_page_no_permission),
-                    type = ToastType.Error
-                )
-            }
-
-            is QRResult.QRSuccess -> {
-                handleProviderShareQrValue(
-                    value = result.content.rawValue ?: "",
-                    onAdd = onAdd,
-                    toaster = toaster,
-                    context = context,
-                    importSession = importSession,
-                    onImportSessionChange = onImportSessionChange,
-                    onSuccess = onSuccess,
-                    onProgress = onProgress,
-                    onError = onError
-                )
-            }
-
-            QRResult.QRUserCanceled -> {}
-        }
-    }.onFailure { error ->
-        onError()
-        toaster.show(
-            context.getString(R.string.setting_provider_page_qr_decode_failed, error.message ?: ""),
-            type = ToastType.Error
-        )
-    }
-}
-
-private fun handleImageQRCode(
-    uri: Uri,
-    onAdd: (ProviderSetting) -> Unit,
-    toaster: AppToasterState,
-    context: android.content.Context,
-    importSession: ProviderQrImportSession?,
-    onImportSessionChange: (ProviderQrImportSession?) -> Unit,
-    onSuccess: () -> Unit,
-    onProgress: () -> Unit,
-    onError: () -> Unit
-) {
-    runCatching {
-        val qrContent = ImageUtils.decodeQRCodeFromUri(context, uri)
-
-        if (qrContent.isNullOrEmpty()) {
-            onError()
-            toaster.show(
-                context.getString(R.string.setting_provider_page_no_qr_found),
-                type = ToastType.Error
-            )
-            return
-        }
-
-        handleProviderShareQrValue(
-            value = qrContent,
-            onAdd = onAdd,
-            toaster = toaster,
-            context = context,
-            importSession = importSession,
-            onImportSessionChange = onImportSessionChange,
-            onSuccess = onSuccess,
-            onProgress = onProgress,
-            onError = onError
-        )
-    }.onFailure { error ->
-        onError()
-        toaster.show(
-            context.getString(R.string.setting_provider_page_image_qr_decode_failed, error.message ?: ""),
-            type = ToastType.Error
-        )
-    }
-}
-
-private fun handleProviderShareQrValue(
-    value: String,
-    onAdd: (ProviderSetting) -> Unit,
-    toaster: AppToasterState,
-    context: android.content.Context,
-    importSession: ProviderQrImportSession?,
-    onImportSessionChange: (ProviderQrImportSession?) -> Unit,
-    onSuccess: () -> Unit,
-    onProgress: () -> Unit,
-    onError: () -> Unit
-) {
-    when (val content = parseProviderShareQrContent(value)) {
-        is ProviderShareQrContent.Single -> {
-            onImportSessionChange(null)
-            onAdd(content.provider)
-            onSuccess()
-            toaster.show(
-                context.getString(R.string.setting_provider_page_import_success),
-                type = ToastType.Success
-            )
-        }
-
-        is ProviderShareQrContent.Part -> {
-            val part = content.part
-            val currentSession = importSession ?: ProviderQrImportSession(
-                transferId = part.transferId,
-                total = part.total,
-                parts = emptyMap(),
-                scanOrder = emptyList()
-            )
-
-            if (currentSession.transferId != part.transferId || currentSession.total != part.total) {
-                onError()
-                toaster.show(
-                    context.getString(R.string.setting_provider_page_multi_qr_wrong_transfer),
-                    type = ToastType.Error
-                )
-                return
-            }
-
-            if (currentSession.parts[part.index]?.data == part.data) {
-                onProgress()
-                toaster.show(
-                    context.getString(R.string.setting_provider_page_multi_qr_duplicate),
-                    type = ToastType.Info
-                )
-                onImportSessionChange(currentSession)
-                return
-            }
-
-            val updatedSession = currentSession.copy(
-                parts = currentSession.parts + (part.index to part),
-                scanOrder = currentSession.scanOrder + part.index
-            )
-
-            if (updatedSession.scannedCount == updatedSession.total) {
-                val setting = decodeProviderSettingParts(updatedSession.parts.values)
-                onImportSessionChange(null)
-                onAdd(setting)
-                onSuccess()
-                toaster.show(
-                    context.getString(R.string.setting_provider_page_import_success),
-                    type = ToastType.Success
-                )
-            } else {
-                onImportSessionChange(updatedSession)
-                onProgress()
-                toaster.show(
-                    context.getString(
-                        R.string.setting_provider_page_multi_qr_progress,
-                        updatedSession.scannedCount,
-                        updatedSession.total
-                    ),
-                    type = ToastType.Info
-                )
-            }
-        }
-    }
-}
-
 
 @Composable
 private fun AddButton(
@@ -1306,15 +836,21 @@ private fun AddButton(
 
     val haptics = rememberPremiumHaptics(enabled = enableHaptics)
     val openProviderSheet = {
-        haptics.perform(HapticPattern.Pop)
-        searchQuery = ""
-        showBottomSheet = true
+        try {
+            haptics.perform(HapticPattern.Pop)
+            searchQuery = ""
+            showBottomSheet = true
+        } catch (t: Throwable) {
+            // Keep a faulty haptic/preset state from force-closing the whole app.
+            android.util.Log.e("SettingProviderPage", "Failed to open provider sheet", t)
+        }
     }
 
     if (asFab) {
         FloatingActionButton(
             onClick = openProviderSheet,
-            shape = AppShapes.CardLarge
+            shape = AppShapes.CardLarge,
+            modifier = Modifier.lastChatGlassInteractive(AppShapes.CardLarge)
         ) {
             Icon(Icons.Rounded.Add, stringResource(R.string.add))
         }

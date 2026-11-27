@@ -1,4 +1,3 @@
-import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileInputStream
@@ -11,8 +10,6 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.liquidglass)
 }
 
@@ -20,8 +17,6 @@ val enableReleaseShrinker = providers.gradleProperty("lastchat.release.minify")
     .map(String::toBoolean)
     .orElse(true)
 
-val webUiDir = rootProject.file("web-ui")
-val webUiBuildDir = File(webUiDir, "build/client")
 val catalogDir = rootProject.file("catalog")
 val generatedCatalogAssetsDir = layout.buildDirectory.dir("generated/assets/catalog")
 
@@ -42,29 +37,6 @@ val prepareBundledCatalogAssets by tasks.registering(Sync::class) {
     into(generatedCatalogAssetsDir)
 }
 
-val buildWebUi by tasks.registering(Exec::class) {
-    group = "build"
-    description = "Builds the React web UI bundle used by the Android app."
-    workingDir = webUiDir
-
-    inputs.dir(File(webUiDir, "app"))
-    inputs.dir(File(webUiDir, "public"))
-    inputs.file(File(webUiDir, "package.json"))
-    inputs.file(File(webUiDir, "react-router.config.ts"))
-    inputs.file(File(webUiDir, "tsconfig.json"))
-    inputs.file(File(webUiDir, "vite.config.ts"))
-    val packageLock = File(webUiDir, "package-lock.json")
-    if (packageLock.exists()) {
-        inputs.file(packageLock)
-    }
-    outputs.dir(webUiBuildDir)
-
-    commandLine(
-        if (Os.isFamily(Os.FAMILY_WINDOWS)) listOf("cmd", "/c", "npm", "run", "build")
-        else listOf("npm", "run", "build")
-    )
-}
-
 android {
     namespace = "me.rerere.rikkahub"
     compileSdk = 37
@@ -72,7 +44,6 @@ android {
 
     sourceSets {
         getByName("main") {
-            assets.srcDir("../web-ui/build/client")
             assets.srcDir(prepareBundledCatalogAssets.map { it.destinationDir })
         }
     }
@@ -251,10 +222,6 @@ tasks.register("buildArm64Release") {
     description = "Build release splits (arm64 included) signed with the local.properties keystore"
 }
 
-tasks.named("preBuild") {
-    dependsOn(buildWebUi)
-}
-
 tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach {
     dependsOn(prepareBundledCatalogAssets)
 }
@@ -295,17 +262,16 @@ dependencies {
     implementation(platform(libs.liquidglass.bom))
     implementation(libs.liquidglass)
     implementation(libs.liquidglass.material3)
+    // Second glass engine used for cylindrical/refraction details (composer capsule, controls).
+    // https://github.com/Kyant0/AndroidLiquidGlass
+    implementation("io.github.kyant0:backdrop:2.0.1")
+    implementation("io.github.kyant0:shapes:1.2.1")
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.material3.adaptive)
     implementation(libs.androidx.material3.adaptive.layout)
 
     // Navigation 2
     implementation(libs.androidx.navigation2)
-
-    // Firebase (Analytics removed for privacy - only crash reporting and remote config)
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.config)
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
@@ -363,14 +329,6 @@ dependencies {
     // serialization
     implementation(libs.kotlinx.serialization.json)
 
-    // zxing
-    implementation(libs.zxing.core)
-
-    // quickie (qrcode scanner)
-    implementation(libs.quickie.bundled)
-    implementation(libs.barcode.scanning)
-    implementation(libs.androidx.camera.core)
-
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
@@ -407,7 +365,6 @@ dependencies {
     // modules
     implementation(project(":shared"))
     implementation(project(":ai"))
-    implementation(project(":document"))
     implementation(project(":highlight"))
     implementation(project(":search"))
     implementation(project(":tts"))

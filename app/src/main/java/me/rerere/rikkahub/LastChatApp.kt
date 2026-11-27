@@ -4,9 +4,6 @@ import android.app.Application
 import android.util.Log
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.remoteConfigSettings
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -101,15 +98,6 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
 
         // delete temp files
         deleteTempFiles()
-
-        // Init remote config
-        get<FirebaseRemoteConfig>().apply {
-            setConfigSettingsAsync(remoteConfigSettings {
-                minimumFetchIntervalInSeconds = 1800
-            })
-            setDefaultsAsync(R.xml.remote_config_defaults)
-            fetchAndActivate()
-        }
 
         val workManager = initializeLastChatWorkManager()
         workManager?.enqueueUniquePeriodicWork(
@@ -222,7 +210,6 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             if (isHazeDetachedCoordinateCrash(throwable)) {
                 Log.w(TAG, "Suppressed Haze LayoutCoordinate crash after detach", throwable)
-                runCatching { get<FirebaseCrashlytics>().recordException(throwable) }
                 return@setDefaultUncaughtExceptionHandler
             }
             previous?.uncaughtException(thread, throwable)

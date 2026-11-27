@@ -818,8 +818,8 @@ class RouteActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
-                        // Leave room for the global floating tab bar.
-                        .padding(bottom = 82.dp),
+                        // Leave room for the global floating tab bar (64dp bar + shadow + system insets).
+                        .padding(bottom = 104.dp),
                     startDestination = actualStartDestination,
                     navController = navBackStack,
                     enterTransition = {

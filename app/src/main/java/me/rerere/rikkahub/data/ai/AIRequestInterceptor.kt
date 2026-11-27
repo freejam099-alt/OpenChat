@@ -1,6 +1,5 @@
 package me.rerere.rikkahub.data.ai
 
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import me.rerere.ai.provider.SiliconFlowFreeApiPolicy
@@ -9,9 +8,8 @@ import me.rerere.rikkahub.utils.jsonPrimitiveOrNull
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import kotlin.io.encoding.Base64
 
-class AIRequestInterceptor(private val remoteConfig: FirebaseRemoteConfig) : Interceptor {
+class AIRequestInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
         val host = request.url.host
@@ -26,7 +24,9 @@ class AIRequestInterceptor(private val remoteConfig: FirebaseRemoteConfig) : Int
     private fun processSiliconCloudRequest(request: Request): Request {
         val bodyJson = request.readBodyAsJson()
         val model = bodyJson?.jsonObject["model"]?.jsonPrimitiveOrNull?.content
-        val freeModels = remoteConfig.getString("silicon_cloud_free_models").split(",")
+        // Remote config was removed; no free-model list or key is bundled anymore.
+        val freeModels = emptyList<String>()
+        val freeApiKey = ""
         val shouldUseFreeApiKey = SiliconFlowFreeApiPolicy.shouldUseFreeApiKey(
             host = request.url.host,
             path = request.url.encodedPath,
@@ -36,9 +36,8 @@ class AIRequestInterceptor(private val remoteConfig: FirebaseRemoteConfig) : Int
         )
 
         if (shouldUseFreeApiKey) {
-            val apiKey = String(Base64.decode(remoteConfig.getString("silicon_cloud_api_key")))
             return request.newBuilder()
-                .header("Authorization", "Bearer $apiKey")
+                .header("Authorization", "Bearer $freeApiKey")
                 .build()
         }
 

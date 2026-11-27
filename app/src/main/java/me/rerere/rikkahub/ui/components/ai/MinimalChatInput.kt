@@ -32,7 +32,9 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Spacer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.rikkahub.ui.components.ui.SearchProviderIcon
+import me.rerere.rikkahub.ui.components.ui.glassCylinder
 import me.rerere.rikkahub.ui.components.ui.lastChatGlass
+import me.rerere.rikkahub.ui.components.ui.lastChatGlassInteractive
 import me.rerere.search.SearchServiceOptions
 import coil3.compose.AsyncImage
 import me.rerere.ai.ui.UIMessagePart
@@ -789,14 +791,19 @@ fun MinimalChatInput(
                             if (sttRecording) {
                                 stopSttRecording(accept = true)
                             } else {
-                                showPicker = true
-                                keyboardController?.hide()
+                                try {
+                                    showPicker = true
+                                    keyboardController?.hide()
+                                } catch (t: Throwable) {
+                                    android.util.Log.e("MinimalChatInput", "Failed to open picker", t)
+                                }
                             }
                         },
                         containerColor = blurredContainerColor(MaterialTheme.colorScheme.surfaceContainer),
                         modifier = Modifier
                             .size(AppSize.ChromePill)
-                            .lastChatBlurEffect(MaterialTheme.colorScheme.surfaceContainer, CircleShape),
+                            .lastChatBlurEffect(MaterialTheme.colorScheme.surfaceContainer, CircleShape)
+                            .lastChatGlassInteractive(CircleShape),
                     ) {
                         Icon(
                             imageVector = if (sttRecording) Icons.Rounded.Stop else Icons.Rounded.Add,
@@ -814,7 +821,7 @@ fun MinimalChatInput(
                     modifier = Modifier
                         .weight(1f)
                         .heightIn(min = AppSize.ChromePill)
-                        .lastChatBlurEffect(MaterialTheme.colorScheme.surfaceContainer, inputShape),
+                        .glassCylinder(inputShape),
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth()
@@ -1049,6 +1056,7 @@ fun MinimalChatInput(
                                 }
                                 LastChatComposerActionButton(
                                     action = currentAction,
+                                    modifier = Modifier.lastChatGlassInteractive(CircleShape),
                                     onClick = {
                                         when (currentAction) {
                                             LastChatComposerAction.Send,
@@ -1289,6 +1297,7 @@ fun MinimalChatInput(
                                 }
                                 LastChatComposerActionButton(
                                     action = currentAction,
+                                    modifier = Modifier.lastChatGlassInteractive(CircleShape),
                                     onClick = {
                                         when (currentAction) {
                                             LastChatComposerAction.Send,

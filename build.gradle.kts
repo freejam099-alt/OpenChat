@@ -18,7 +18,6 @@ val iosCandidateModules = listOf(
     "common",
     "search",
     "highlight",
-    "document",
     "tts",
     "ui-core",
     "app"

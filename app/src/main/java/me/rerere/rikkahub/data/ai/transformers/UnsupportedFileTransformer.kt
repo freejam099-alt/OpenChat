@@ -70,3 +70,34 @@ object UnsupportedFileTransformer : InputMessageTransformer {
     }
 }
 
+private val ARCHIVE_AND_BINARY_EXTENSIONS = setOf(
+    "zip", "tar", "gz", "tgz", "bz2", "xz", "7z", "rar", "z", "lz", "lzma", "lzh",
+    "apk", "jar", "war", "ear", "aab", "dex", "class",
+    "iso", "img", "dmg", "vmdk", "qcow2",
+    "bin", "exe", "dll", "so", "dylib", "elf", "o", "obj", "pyc", "pyo", "pyd",
+    "db", "sqlite", "sqlite3", "dat", "bak"
+)
+
+private val EXPLICIT_BINARY_MIME_TYPES = setOf(
+    "application/zip",
+    "application/x-zip-compressed",
+    "application/x-tar",
+    "application/gzip",
+    "application/x-gzip",
+    "application/x-bzip2",
+    "application/x-7z-compressed",
+    "application/x-rar-compressed",
+    "application/octet-stream",
+    "application/vnd.android.package-archive",
+    "application/x-executable",
+    "application/x-sharedlib",
+    "application/java-archive"
+)
+
+fun isArchiveOrBinaryFile(fileName: String, mime: String): Boolean {
+    val ext = fileName.substringAfterLast('.', "").lowercase()
+    if (ext in ARCHIVE_AND_BINARY_EXTENSIONS) return true
+    if (mime.lowercase() in EXPLICIT_BINARY_MIME_TYPES) return true
+    return false
+}
+

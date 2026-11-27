@@ -1,9 +1,6 @@
 package me.rerere.rikkahub.data.ai.tools
 
 import android.content.Context
-import com.whl.quickjs.android.QuickJSLoader
-import com.whl.quickjs.wrapper.QuickJSContext
-import com.whl.quickjs.wrapper.QuickJSObject
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.SerialName
@@ -100,20 +97,9 @@ data class LocalToolDefinitionPreview(
 )
 
 fun LocalToolOption.toDefinitionPreviews(): List<LocalToolDefinitionPreview> = when (this) {
-    LocalToolOption.JavascriptEngine -> listOf(
-        LocalToolDefinitionPreview(
-            name = "eval_javascript",
-            description = "Execute JavaScript code with QuickJS. If use this tool to calculate math, better to add `toFixed` to the code.",
-            schema = InputSchema.Obj(
-                properties = buildJsonObject {
-                    put("code", buildJsonObject {
-                        put("type", "string")
-                        put("description", "The JavaScript code to execute")
-                    })
-                },
-            )
-        )
-    )
+    // Legacy entries kept only for backwards-compatible settings deserialization.
+    LocalToolOption.JavascriptEngine -> emptyList()
+    LocalToolOption.PythonEngine -> emptyList()
     LocalToolOption.Notifications -> listOf(
         LocalToolDefinitionPreview(
             name = "send_notification",
@@ -162,7 +148,6 @@ fun LocalToolOption.toDefinitionPreviews(): List<LocalToolDefinitionPreview> = w
             )
         )
     )
-    LocalToolOption.PythonEngine -> emptyList()
     LocalToolOption.Tts -> listOf(
         LocalToolDefinitionPreview(
             name = "text_to_speech",
@@ -374,36 +359,6 @@ class LocalTools(
             execute = {
                 parseAskUserQuestionnaire(it)?.toJsonElement() ?: buildJsonObject {
                     put("questions", JsonArray(emptyList()))
-                }
-            }
-        )
-    }
-
-    val javascriptTool by lazy {
-        Tool(
-            name = "eval_javascript",
-            description = "Execute JavaScript code with QuickJS. If use this tool to calculate math, better to add `toFixed` to the code.",
-            parameters = {
-                InputSchema.Obj(
-                    properties = buildJsonObject {
-                        put("code", buildJsonObject {
-                            put("type", "string")
-                            put("description", "The JavaScript code to execute")
-                        })
-                    },
-                )
-            },
-            execute = {
-                val code = it.jsonObject["code"]?.jsonPrimitive?.contentOrNull
-                QuickJSLoader.init()
-                val resultText = QuickJSContext.create().use { context ->
-                    when (val result = context.evaluate(code)) {
-                        is QuickJSObject -> result.stringify()
-                        else -> result.toString()
-                    }
-                }
-                buildJsonObject {
-                    put("result", resultText)
                 }
             }
         )
@@ -703,9 +658,7 @@ class LocalTools(
         conversationId: Uuid,
     ): List<Tool> {
         val tools = mutableListOf<Tool>()
-        if (options.contains(LocalToolOption.JavascriptEngine)) {
-            tools.add(javascriptTool)
-        }
+        // JavascriptEngine and PythonEngine are legacy settings values only; no tools are produced.
         if (options.contains(LocalToolOption.Notifications)) {
             tools.addAll(getNotificationTools(assistantId, conversationId))
         }

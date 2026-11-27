@@ -42,6 +42,7 @@ import me.rerere.rikkahub.data.datastore.NewChatHeaderStyle
 import me.rerere.rikkahub.data.model.Assistant
 import me.rerere.rikkahub.ui.components.ui.Greeting
 import me.rerere.rikkahub.ui.components.ui.UIAvatar
+import me.rerere.rikkahub.ui.components.ui.lastChatGlassInteractive
 import me.rerere.rikkahub.ui.modifier.blurredContainerColor
 import me.rerere.rikkahub.ui.modifier.lastChatBlurEffect
 import me.rerere.rikkahub.ui.theme.AppShapes
@@ -283,9 +284,9 @@ private fun ActionPill(
 
     val pillShape = RoundedCornerShape(24.dp)
     val pillModifier = if (hasBackgroundImage) {
-        modifier.lastChatBlurEffect(backgroundColor, pillShape)
+        modifier.lastChatBlurEffect(backgroundColor, pillShape).lastChatGlassInteractive(pillShape)
     } else {
-        modifier
+        modifier.lastChatGlassInteractive(pillShape)
     }
     val containerColor = if (hasBackgroundImage) {
         blurredContainerColor(backgroundColor)
