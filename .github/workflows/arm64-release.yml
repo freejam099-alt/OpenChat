@@ -104,14 +104,18 @@ jobs:
           chmod +x gradlew
           ./gradlew :app:assembleStableRelease --no-daemon -Plastchat.abi.splits=true
 
-      - name: Report APK size
-        run: find app/build/outputs/apk -name '*.apk' -exec ls -lh {} \;
+      - name: Report APK size and contents
+        run: |
+          APK=$(find app/build/outputs/apk -name '*arm64*release.apk' | head -1)
+          ls -lh "$APK"
+          unzip -l "$APK" | awk 'NR>3 && NF>=4 {n=$4; sub(/\/[^\/]*$/,"",n); split(n,a,"/"); k=a[1]; s[k]+=$1} END {for (k in s) printf "%10.2f MB  %s\n", s[k]/1048576, k}' | sort -rn | head -20
+          unzip -l "$APK" | sort -rn | head -25
 
       - name: Upload arm64 APK
         uses: actions/upload-artifact@v4
         if: success()
         with:
           name: LastChat-arm64-release
-          path: app/build/outputs/apk/stable/arm64/release/*.apk
+          path: app/build/outputs/apk/stable/release/*arm64*.apk
           if-no-files-found: error
           retention-days: 90
