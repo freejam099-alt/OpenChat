@@ -56,10 +56,10 @@ jobs:
           fi
           ls -l app/release.jks
 
-      - name: Build arm64 release APK
+      - name: Build release APKs (arm64 split included)
         run: |
           chmod +x gradlew
-          ./gradlew :app:assembleStableArm64Release --no-daemon -Plastchat.abi.splits=true
+          ./gradlew :app:assembleStableRelease --no-daemon -Plastchat.abi.splits=true
 
       - name: Report APK size
         run: find app/build/outputs/apk -name '*.apk' -exec ls -lh {} \;

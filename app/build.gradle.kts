@@ -246,8 +246,8 @@ tasks.register("buildAll") {
 }
 
 tasks.register("buildArm64Release") {
-    dependsOn("assembleStableArm64Release")
-    description = "Build only the arm64 release APK (smallest variant, signed with local.properties keystore)"
+    dependsOn(":app:assembleStableRelease")
+    description = "Build release splits (arm64 included) signed with the local.properties keystore"
 }
 
 tasks.named("preBuild") {
