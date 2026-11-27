@@ -1,6 +1,32 @@
 # Arm64 release APK — size audit
 
-Target: **kecil, ~30 MB** untuk APK arm64 release. Environment agent **tidak punya JDK / Android SDK**, jadi ukuran final belum bisa diukur di sini. Audit ini memetakan penyumbang ukuran dan langkah yang sudah/perlu dilakukan.
+Target: **~30 MB** untuk APK arm64 release. **Hasil build GitHub Actions (signed, arm64): 49 MB** — target belum tercapai.
+
+## Hasil ukur (CI, 2026-11-27)
+
+`app/build/outputs/apk/stable/release/LastChat_1.4.8_stable-arm64-v8a-release.apk` = **49 MB**.
+
+Komposisi (unzip -l, ukuran sebelum kompresi ZIP internal):
+
+| Bagian | Ukuran | Catatan |
+|---|---:|---|
+| `lib/` | 16,01 MB | `libmupdf_java.so` 9,44 MB; `libbarhopper_v3.so` 4,95 MB; `libquickjs-android-wrapper.so` 1,33 MB; proot/termux ~1 MB |
+| `assets/` | 13,03 MB | terutama bundle React SPA `web-ui/build/client` |
+| `classes.dex` + `classes2.dex` | 18,68 MB | Firebase, ML Kit, Ktor, Coil, Pebble, MCP, Room, Compose |
+| `res/` + `resources.arsc` | 10,03 MB | font 3,9 MB, placeholder PNG 2,2 MB, 7 locale |
+
+## Kandidat pemotongan (perlu konfirmasi — mengubah fitur)
+
+| Prioritas | Potong | Estimasi hemat | Dampak |
+|---|---|---:|---|
+| 1 | Bundle `web-ui` dari APK (tetap simpan server Ktor/API) | ~3–5 MB | Akses browser/SPA hilang |
+| 2 | Modul `:document` + MuPDF | ~4,4 MB | PDF/DOCX sebagai prompt tidak lagi didukung |
+| 3 | ML Kit barcode + CameraX + quickie | ~3–4 MB | Scanner QR/barcode hilang |
+| 4 | Firebase Crashlytics + RemoteConfig | ~1–2 MB | Telemetri & policy remote hilang |
+| 5 | QuickJS (`highlight` + JS tool) | ~0,7 MB | Highlight & tool JS hilang |
+| 6 | Font kustom → font sistem / subset; placeholder PNG → WebP | ~5 MB | Perubahan visual minor |
+
+Kombinasi 1+2+3+6 ≈ 15–18 MB → kisaran **31–34 MB**. Tambah R8 full-mode / pembatasan locale bila perlu menyentuh ~30 MB.
 
 ## Sudah dilakukan (mengecilkan APK)
 
