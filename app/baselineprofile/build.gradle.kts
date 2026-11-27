@@ -9,6 +9,7 @@ plugins {
 android {
     namespace = "me.rerere.baselineprofile"
     compileSdk = 37
+    compileSdkMinor = 0
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

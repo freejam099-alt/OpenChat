@@ -53,6 +53,7 @@ kotlin {
 android {
     namespace = "me.rerere.common"
     compileSdk = 37
+    compileSdkMinor = 0
 
     defaultConfig {
         minSdk = 26

@@ -44,6 +44,7 @@ kotlin {
 android {
     namespace = "me.rerere.search"
     compileSdk = 37
+    compileSdkMinor = 0
 
     defaultConfig {
         minSdk = 23

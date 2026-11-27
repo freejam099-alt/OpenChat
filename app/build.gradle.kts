@@ -68,6 +68,7 @@ val buildWebUi by tasks.registering(Exec::class) {
 android {
     namespace = "me.rerere.rikkahub"
     compileSdk = 37
+    compileSdkMinor = 0
 
     sourceSets {
         getByName("main") {

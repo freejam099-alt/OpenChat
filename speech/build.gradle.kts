@@ -10,6 +10,7 @@ plugins {
 android {
     namespace = "me.rerere.speech"
     compileSdk = 37
+    compileSdkMinor = 0
 
     defaultConfig {
         minSdk = 26

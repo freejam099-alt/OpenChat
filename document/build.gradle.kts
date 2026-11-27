@@ -8,6 +8,7 @@ plugins {
 android {
     namespace = "me.rerere.document"
     compileSdk = 37
+    compileSdkMinor = 0
 
     defaultConfig {
         minSdk = 26
