@@ -231,7 +231,8 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
                 val sw = StringWriter()
                 throwable.printStackTrace(PrintWriter(sw))
                 val stamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
-                File(filesDir, "crash-last.txt").writeText("$stamp [${thread.name}]\n$sw")
+                val outDir = getExternalFilesDir(null) ?: filesDir
+                File(outDir, "crash-last.txt").writeText("$stamp [${thread.name}]\n$sw")
                 Log.e(TAG, "FATAL crash", throwable)
             } catch (_: Throwable) {
             }
