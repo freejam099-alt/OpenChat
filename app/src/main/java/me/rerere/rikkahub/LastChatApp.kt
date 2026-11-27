@@ -47,6 +47,12 @@ import me.rerere.rikkahub.service.WebServerService
 import me.rerere.rikkahub.service.initializeLastChatWorkManager
 import me.rerere.rikkahub.data.search.AndroidBingSearchClient
 import java.util.concurrent.TimeUnit
+import java.io.File
+import java.io.PrintWriter
+import java.io.StringWriter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import org.koin.core.context.startKoin
 import me.rerere.common.platform.PlatformHttpClient
 import me.rerere.rikkahub.di.SEARCH_PLATFORM_HTTP_CLIENT
@@ -80,6 +86,7 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        installCrashLogger()
         startKoin {
             androidLogger()
             androidContext(this@LastChatApp)
@@ -213,6 +220,22 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
                 return@setDefaultUncaughtExceptionHandler
             }
             previous?.uncaughtException(thread, throwable)
+        }
+    }
+
+    /** Persists every fatal stack trace so startup failures can be diagnosed without logcat. */
+    private fun installCrashLogger() {
+        val previous = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            try {
+                val sw = StringWriter()
+                throwable.printStackTrace(PrintWriter(sw))
+                val stamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
+                File(filesDir, "crash-last.txt").writeText("$stamp [${thread.name}]\n$sw")
+                Log.e(TAG, "FATAL crash", throwable)
+            } catch (_: Throwable) {
+            }
+            previous?.uncaughtException(thread, throwable) ?: Runtime.getRuntime().halt(1)
         }
     }
 

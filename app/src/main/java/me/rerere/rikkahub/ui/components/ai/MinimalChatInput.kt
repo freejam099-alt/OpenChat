@@ -32,7 +32,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Spacer
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.rikkahub.ui.components.ui.SearchProviderIcon
-import me.rerere.rikkahub.ui.components.ui.glassCylinder
 import me.rerere.rikkahub.ui.components.ui.lastChatGlass
 import me.rerere.rikkahub.ui.components.ui.lastChatGlassInteractive
 import me.rerere.search.SearchServiceOptions
@@ -821,7 +820,7 @@ fun MinimalChatInput(
                     modifier = Modifier
                         .weight(1f)
                         .heightIn(min = AppSize.ChromePill)
-                        .glassCylinder(inputShape),
+                        .lastChatGlass(inputShape),
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth()

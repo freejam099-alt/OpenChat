@@ -262,10 +262,6 @@ dependencies {
     implementation(platform(libs.liquidglass.bom))
     implementation(libs.liquidglass)
     implementation(libs.liquidglass.material3)
-    // Second glass engine used for cylindrical/refraction details (composer capsule, controls).
-    // https://github.com/Kyant0/AndroidLiquidGlass
-    implementation("io.github.kyant0:backdrop:2.0.1")
-    implementation("io.github.kyant0:shapes:1.2.1")
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.material3.adaptive)
     implementation(libs.androidx.material3.adaptive.layout)
