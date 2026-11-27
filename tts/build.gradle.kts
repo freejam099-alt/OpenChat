@@ -60,7 +60,7 @@ kotlin {
 
 android {
     namespace = "me.rerere.tts"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26

@@ -136,7 +136,7 @@ tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }
 
 android {
     namespace = "me.rerere.rikkahub.ui.core"
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig { minSdk = 28 }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

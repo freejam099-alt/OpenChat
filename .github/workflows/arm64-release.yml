@@ -33,6 +33,12 @@ jobs:
         working-directory: web-ui
         run: npm ci
 
+      - name: Ensure Android SDK 37
+        run: |
+          if [ ! -d "$ANDROID_HOME/platforms/android-37" ]; then
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37" "build-tools;37.0.0"
+          fi
+
       - name: Gradle cache
         uses: actions/cache@v4
         with:
