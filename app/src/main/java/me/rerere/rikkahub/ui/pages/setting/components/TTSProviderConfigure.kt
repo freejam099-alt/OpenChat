@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -251,7 +252,7 @@ private fun OpenAITTSConfiguration(
             )
             
             if (availableModels != null) {
-                ExposedDropdownMenu(
+                DropdownMenu(
                     expanded = modelExpanded,
                     onDismissRequest = { modelExpanded = false }
                 ) {
@@ -295,7 +296,7 @@ private fun OpenAITTSConfiguration(
                     },
                     shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
                 )
-                ExposedDropdownMenu(
+                DropdownMenu(
                     expanded = voiceExpanded,
                     onDismissRequest = { voiceExpanded = false }
                 ) {
@@ -417,7 +418,7 @@ private fun MiniMaxTTSConfiguration(
                     },
                     shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
                 )
-                ExposedDropdownMenu(
+                DropdownMenu(
                     expanded = voiceIdExpanded,
                     onDismissRequest = { voiceIdExpanded = false }
                 ) {
@@ -459,7 +460,7 @@ private fun MiniMaxTTSConfiguration(
                     },
                     shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
                 )
-                ExposedDropdownMenu(
+                DropdownMenu(
                     expanded = emotionExpanded,
                     onDismissRequest = { emotionExpanded = false }
                 ) {
@@ -646,7 +647,7 @@ private fun SystemTTSConfiguration(
                     },
                     shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
                 )
-                ExposedDropdownMenu(
+                DropdownMenu(
                     expanded = voiceExpanded,
                     onDismissRequest = { voiceExpanded = false }
                 ) {
@@ -801,7 +802,7 @@ private fun QwenTTSConfiguration(
                     },
                     shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
                 )
-                ExposedDropdownMenu(
+                DropdownMenu(
                     expanded = voiceExpanded,
                     onDismissRequest = { voiceExpanded = false }
                 ) {
@@ -842,7 +843,7 @@ private fun QwenTTSConfiguration(
                     },
                     shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
                 )
-                ExposedDropdownMenu(
+                DropdownMenu(
                     expanded = languageExpanded,
                     onDismissRequest = { languageExpanded = false }
                 ) {
@@ -943,7 +944,7 @@ private fun ElevenLabsTTSConfiguration(
                 },
                 shape = me.rerere.rikkahub.ui.theme.AppShapes.InputField,
             )
-            ExposedDropdownMenu(
+            DropdownMenu(
                 expanded = modelExpanded,
                 onDismissRequest = { modelExpanded = false }
             ) {

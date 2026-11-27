@@ -250,6 +250,9 @@ fun ProviderConfigure(
             is ProviderSetting.ComfyUI -> {
                 ProviderConfigureComfyUI(provider, onEdit)
             }
+
+            // Serialization-only tombstone and any future provider types: no parameters to edit.
+            else -> Unit
         }
     }
 }

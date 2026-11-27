@@ -33,7 +33,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.hasRoute
 import androidx.navigation.toRoute
 
 import me.rerere.rikkahub.ui.components.nav.LastChatFloatingNavBar
@@ -789,13 +788,11 @@ class RouteActivity : ComponentActivity() {
                 // Tab mapping: 0 = Chat (isolated AI surface), 1 = Provider,
                 // 2 = UI Customization, 3 = all other settings/features.
                 val navBackStackEntry by navBackStack.currentBackStackEntryAsState()
-                val navDestination = navBackStackEntry?.destination
+                val navRoute = navBackStackEntry?.destination?.route.orEmpty()
                 val selectedFloatingTab = when {
-                    navDestination == null -> 0
-                    navDestination.hasRoute<Screen.Chat>() -> 0
-                    navDestination.hasRoute<Screen.SettingProvider>() ||
-                        navDestination.hasRoute<Screen.SettingProviderDetail>() -> 1
-                    navDestination.hasRoute<Screen.SettingUICustomization>() -> 2
+                    navRoute.contains("Screen.Chat") -> 0
+                    navRoute.contains("SettingProvider") -> 1
+                    navRoute.contains("SettingUICustomization") -> 2
                     else -> 3
                 }
                 Box(modifier = Modifier.fillMaxSize()) {
