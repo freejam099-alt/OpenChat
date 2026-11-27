@@ -383,6 +383,7 @@ private fun ToolCallPreviewSheet(
                                     item {
                                         Card(
                                             colors = CardDefaults.cardColors(
+                                                containerColor = MaterialTheme.colorScheme.primaryContainer
                                             )
                                         ) {
                                             MarkdownBlock(
@@ -409,6 +410,7 @@ private fun ToolCallPreviewSheet(
                                             navController.navigate(Screen.WebView(url = url))
                                         },
                                         colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                         )
                                     ) {
                                         Row(
@@ -460,6 +462,7 @@ private fun ToolCallPreviewSheet(
                                                 Card(
                                                     shape = AppShapes.CardSmall,
                                                     colors = CardDefaults.cardColors(
+                                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                                     )
                                                 ) {
                                                     Column(
@@ -566,6 +569,7 @@ private fun ToolCallPreviewSheet(
                             )
                             Card(
                                 colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -585,7 +589,8 @@ private fun ToolCallPreviewSheet(
                             )
                             Card(
                                 colors = CardDefaults.cardColors(
-                                        MaterialTheme.colorScheme.errorContainer 
+                                    containerColor = if (error != null)
+                                        MaterialTheme.colorScheme.errorContainer
                                     else MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 modifier = Modifier.fillMaxWidth()
@@ -660,6 +665,7 @@ private fun ToolCallPreviewSheet(
                             
                             Card(
                                 colors = CardDefaults.cardColors(
+                                    containerColor = if (success)
                                         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                     else MaterialTheme.colorScheme.errorContainer
                                 ),
@@ -790,6 +796,7 @@ private fun ToolCallPreviewSheet(
                             }
                             Card(
                                 colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -835,6 +842,7 @@ private fun ToolCallPreviewSheet(
                             }
                             Card(
                                 colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {

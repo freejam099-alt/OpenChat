@@ -64,7 +64,7 @@ fun GlassComposerAddButton(
         Box(
             Modifier.fillMaxSize().combinedClickable(onLongClick = onLongClick, onClick = onClick),
             contentAlignment = Alignment.Center,
-            content = icon,
+            content = { icon() },
         )
     }
 }

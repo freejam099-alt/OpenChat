@@ -553,7 +553,6 @@ private fun WebDavPage(
     if (showBackupFiles) {
         ModalBottomSheet(
             shape = AppShapes.BottomSheet,
-            tonalElevation = AppSurface.TonalElevation,
             onDismissRequest = {
                 showBackupFiles = false
             },

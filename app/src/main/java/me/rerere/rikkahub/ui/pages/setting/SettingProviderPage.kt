@@ -713,10 +713,6 @@ private fun ProviderListView(
                 
                 // Calculate neighbor offset
                 val thresholdPx = with(density) { 35.dp.toPx() }
-                if (draggingIndex >= 0 && !neighborsUnlocked && kotlin.math.abs(dragOffset) >= thresholdPx) {
-                    neighborsUnlocked = true
-                }
-                
                 val shouldNeighborFollow = draggingIndex >= 0 && 
                     draggingIndex != index && 
                     !isUnlocked && 
