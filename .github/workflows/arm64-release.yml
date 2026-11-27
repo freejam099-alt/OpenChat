@@ -36,7 +36,10 @@ jobs:
       - name: Ensure Android SDK 37
         run: |
           if [ ! -d "$ANDROID_HOME/platforms/android-37" ]; then
-            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37" "build-tools;37.0.0"
+            mkdir -p "$ANDROID_HOME/licenses"
+            printf '\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' \
+              > "$ANDROID_HOME/licenses/android-sdk-license"
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37" "build-tools;37.0.0"
           fi
 
       - name: Gradle cache
