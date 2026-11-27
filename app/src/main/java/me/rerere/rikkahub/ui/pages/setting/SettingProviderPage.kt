@@ -79,7 +79,9 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FloatingActionButton
+import com.wexpa.liquidglass.Glass
+import com.wexpa.liquidglass.material3.FloatingActionButton
+import me.rerere.rikkahub.ui.components.ui.GlassIconButton
 import me.rerere.rikkahub.ui.components.ui.lastChatGlass
 import me.rerere.rikkahub.ui.components.ui.lastChatGlassInteractive
 import androidx.compose.material3.Icon
@@ -283,8 +285,8 @@ fun SettingProviderPage(
                                 showTtsFilterSettings = true
                             }
                         },
-                        modifier = Modifier.lastChatGlassInteractive(AppShapes.CardLarge),
                         shape = AppShapes.CardLarge,
+                        glass = Glass.Regular.interactive(),
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurface
                     ) {
@@ -370,7 +372,7 @@ fun SettingProviderPage(
                 leadingIcon = { Icon(Icons.Rounded.Search, null) },
                 trailingIcon = if (searchQuery.isNotEmpty()) {
                     {
-                        IconButton(onClick = { searchQuery = "" }) {
+                        GlassIconButton(onClick = { searchQuery = "" }) {
                             Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.clear_search))
                         }
                     }
@@ -460,8 +462,8 @@ fun SettingProviderPage(
                                 showTtsFilterSettings = true
                             }
                         },
-                        modifier = Modifier.lastChatGlassInteractive(AppShapes.CardLarge),
                         shape = AppShapes.CardLarge,
+                        glass = Glass.Regular.interactive(),
                         containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         contentColor = MaterialTheme.colorScheme.onSurface
                     ) {
@@ -532,13 +534,13 @@ private fun SearchBarWithToggle(
             leadingIcon = { Icon(Icons.Rounded.Search, null) },
             trailingIcon = if (searchQuery.isNotEmpty()) {
                 {
-                    IconButton(onClick = { onSearchQueryChange("") }) {
+                    GlassIconButton(onClick = { onSearchQueryChange("") }) {
                         Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.clear_search))
                     }
                 }
             } else null
         )
-        IconButton(onClick = onToggleViewMode) {
+        GlassIconButton(onClick = onToggleViewMode) {
             Icon(
                 imageVector = if (viewMode == ProviderViewMode.LIST) Icons.Rounded.GridView else Icons.AutoMirrored.Rounded.ViewList,
                 contentDescription = stringResource(R.string.a11y_toggle_view_mode)
@@ -841,12 +843,12 @@ private fun AddButton(
         FloatingActionButton(
             onClick = openProviderSheet,
             shape = AppShapes.CardLarge,
-            modifier = Modifier.lastChatGlassInteractive(AppShapes.CardLarge)
+            glass = Glass.Regular.interactive()
         ) {
             Icon(Icons.Rounded.Add, stringResource(R.string.add))
         }
     } else {
-        IconButton(onClick = openProviderSheet) {
+        GlassIconButton(onClick = openProviderSheet) {
             Icon(Icons.Rounded.Add, stringResource(R.string.add))
         }
     }
@@ -904,7 +906,7 @@ private fun AddButton(
                     leadingIcon = { Icon(Icons.Rounded.Search, null) },
                     trailingIcon = if (searchQuery.isNotEmpty()) {
                         {
-                            IconButton(onClick = { searchQuery = "" }) {
+                            GlassIconButton(onClick = { searchQuery = "" }) {
                                 Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.clear_search))
                             }
                         }

@@ -1,18 +1,22 @@
 package me.rerere.rikkahub.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.wexpa.liquidglass.LiquidGlassTheme
 
 /**
- * Root theme for LastChat.
- *
- * The Liquid Glass overlay engine was removed: it draws glass in a separate root overlay, which
- * produced double shapes, refraction of content that should not be behind the panel, and
- * cross-window failures inside dialogs/sheets. Glass is now expressed with translucent
- * Material3 surfaces (shape + border + colour with alpha) drawn in-place — no overlay layer.
+ * Root theme. Liquid Glass is enabled here because a few opted-in components (floating navbar,
+ * chat input bar, icon buttons and FABs) need the glass host. Nothing else in the tree opts in.
  */
 @Composable
 fun LastChatTheme(
     content: @Composable () -> Unit,
 ) {
-    RikkahubTheme(content = content)
+    RikkahubTheme {
+        LiquidGlassTheme(
+            dark = LocalDarkMode.current,
+            background = MaterialTheme.colorScheme.background,
+            content = content,
+        )
+    }
 }
