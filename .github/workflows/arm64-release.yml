@@ -33,13 +33,16 @@ jobs:
         working-directory: web-ui
         run: npm ci
 
-      - name: Ensure Android SDK 37
+      - name: Ensure Android SDK components and licenses
         run: |
-          if [ ! -d "$ANDROID_HOME/platforms/android-37" ]; then
-            mkdir -p "$ANDROID_HOME/licenses"
-            printf '\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n' \
-              > "$ANDROID_HOME/licenses/android-sdk-license"
+          set +o pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null 2>&1 || true
+          set -o pipefail
+          if [ ! -d "$ANDROID_HOME/platforms/android-37.0" ]; then
             "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37.0" "build-tools;37.0.0"
+          fi
+          if [ ! -d "$ANDROID_HOME/ndk/28.2.13676358" ]; then
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;28.2.13676358"
           fi
 
       - name: Gradle cache
