@@ -1,5 +1,6 @@
 package me.rerere.rikkahub.ui.components.chat
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
@@ -9,29 +10,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.wexpa.liquidglass.Glass
-import com.wexpa.liquidglass.GlassStyle
-import com.wexpa.liquidglass.material3.Surface
+import androidx.compose.ui.unit.dp
 import me.rerere.rikkahub.ui.theme.AppSize
-import me.rerere.rikkahub.ui.theme.LocalDarkMode
 
-/** Glass used by the composer. The container itself is transparent: colour lives in the glass. */
+/** Translucent in-place glass (no overlay renderer). */
 @Composable
-private fun composerGlass(interactive: Boolean = false): Glass {
-    val dark = LocalDarkMode.current
-    val fallback = MaterialTheme.colorScheme.surfaceContainer
-    return remember(dark, fallback, interactive) {
-        val glass = Glass(GlassStyle.inApp(dark = dark).copy(fallbackSurface = fallback))
-        if (interactive) glass.interactive() else glass
-    }
-}
+private fun glassColor(alpha: Float = 0.55f): Color =
+    MaterialTheme.colorScheme.surfaceContainer.copy(alpha = alpha)
 
-/** Full-glass input capsule (ui-core's Material Surface cannot depend on Liquid Glass). */
+private val glassBorder: BorderStroke
+    @Composable get() = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.45f))
+
+/** Input capsule with a real rounded shape, not a floating overlay. */
 @Composable
 fun RowScope.GlassComposerCapsule(
     modifier: Modifier = Modifier.weight(1f).heightIn(min = AppSize.ChromePill),
@@ -39,14 +34,15 @@ fun RowScope.GlassComposerCapsule(
 ) {
     Surface(
         shape = LastChatComposerInputShape,
-        glass = composerGlass(),
+        color = glassColor(),
         contentColor = MaterialTheme.colorScheme.onSurface,
+        border = glassBorder,
         modifier = modifier.defaultMinSize(minHeight = AppSize.ChromePill),
         content = content,
     )
 }
 
-/** Full-glass add button; long click is handled on the inner box, so glass stays non-interactive. */
+/** Add button: long click handled on the inner box. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GlassComposerAddButton(
@@ -57,8 +53,9 @@ fun GlassComposerAddButton(
 ) {
     Surface(
         shape = CircleShape,
-        glass = composerGlass(),
+        color = glassColor(),
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        border = glassBorder,
         modifier = modifier,
     ) {
         Box(
@@ -69,7 +66,7 @@ fun GlassComposerAddButton(
     }
 }
 
-/** Full-glass action/send button. */
+/** Send/action button. */
 @Composable
 fun GlassComposerActionButton(
     action: LastChatComposerAction,
@@ -80,8 +77,9 @@ fun GlassComposerActionButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        glass = composerGlass(interactive = true),
-        contentColor = Color.Unspecified,
+        color = glassColor(0.75f),
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        border = glassBorder,
         modifier = modifier,
     ) {
         content(action)

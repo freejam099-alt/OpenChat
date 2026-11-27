@@ -29,11 +29,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import com.wexpa.liquidglass.material3.ModalBottomSheet
-import com.wexpa.liquidglass.material3.Surface
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import com.wexpa.liquidglass.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import me.rerere.rikkahub.ui.components.ui.HapticSwitch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

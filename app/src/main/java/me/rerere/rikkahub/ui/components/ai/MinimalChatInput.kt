@@ -115,13 +115,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import com.wexpa.liquidglass.material3.ModalBottomSheet
-import com.wexpa.liquidglass.GlassEffectContainer
-import com.wexpa.liquidglass.material3.Surface
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import com.wexpa.liquidglass.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -778,8 +777,6 @@ fun MinimalChatInput(
             }
             
             // Minimal input bar - plus button + text field with embedded action button.
-            // Glass pieces share one body so the whole composer reads as a single liquid surface.
-            GlassEffectContainer(spacing = 8.dp) {
             LastChatComposerRow {
                 // Plus button - 48dp pill button
                 if (!isQuestionnaireActive && !isToolApprovalActive) {
@@ -1054,6 +1051,9 @@ fun MinimalChatInput(
                                 }
                                 GlassComposerActionButton(
                                     action = currentAction,
+                                    modifier = if (state.isEmpty() && !state.loading && !isQuestionnaireActive &&
+                                        !isToolApprovalActive && !hasSelectedSttProvider
+                                    ) Modifier.size(0.dp) else Modifier.size(AppSize.ChromePill),
                                     onClick = {
                                         when (currentAction) {
                                             LastChatComposerAction.Send,
@@ -1292,6 +1292,9 @@ fun MinimalChatInput(
                                 }
                                 GlassComposerActionButton(
                                     action = currentAction,
+                                    modifier = if (state.isEmpty() && !state.loading && !isQuestionnaireActive &&
+                                        !isToolApprovalActive && !hasSelectedSttProvider
+                                    ) Modifier.size(0.dp) else Modifier.size(AppSize.ChromePill),
                                     onClick = {
                                         when (currentAction) {
                                             LastChatComposerAction.Send,
@@ -1305,7 +1308,6 @@ fun MinimalChatInput(
                                             else -> Unit
                                         }
                                     },
-                                    modifier = Modifier.size(AppSize.ChromePill),
                                 ) { action ->
                                     when (action) {
                                         LastChatComposerAction.Loading -> {
@@ -1377,7 +1379,6 @@ fun MinimalChatInput(
                         }
                     }
                 }
-            }
             }
         }
     }

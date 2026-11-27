@@ -1,6 +1,6 @@
 package me.rerere.rikkahub.ui.components.ui
 
-import com.wexpa.liquidglass.material3.Switch
+import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchColors
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable

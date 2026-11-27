@@ -9,7 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import me.rerere.ai.provider.Model
 import androidx.compose.ui.draw.clip
-import com.wexpa.liquidglass.material3.Switch
+import androidx.compose.material3.Switch
 import androidx.compose.material3.SuggestionChip
 import org.koin.core.parameter.parametersOf
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,10 +54,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import com.wexpa.liquidglass.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
-import com.wexpa.liquidglass.material3.SingleChoiceSegmentedButtonRow
-import com.wexpa.liquidglass.material3.Surface
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Surface
 import me.rerere.rikkahub.ui.components.ui.HapticSwitch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
