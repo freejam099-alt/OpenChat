@@ -57,7 +57,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.ModalBottomSheet
+import com.wexpa.liquidglass.material3.ModalBottomSheet
 import com.wexpa.liquidglass.material3.MultiChoiceSegmentedButtonRow
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedButton
@@ -78,7 +78,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
+import com.wexpa.liquidglass.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -1504,7 +1504,6 @@ private fun ModelPickerFab(
     
     if (showPicker) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = { showPicker = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
@@ -1725,12 +1724,10 @@ private fun AddNewModelFab(
         dialogState.currentState?.let { modelState ->
             val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
                 onDismissRequest = {
                     dialogState.dismiss()
                 },
                 sheetState = sheetState,
-                sheetGesturesEnabled = false,
                 dragHandle = {
                     IconButton(
                         onClick = {
@@ -1856,7 +1853,6 @@ private fun ModelPicker(
     val modelMetadataResolver = koinInject<ModelMetadataResolver>()
     if (showModal) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = { showModal = false },
             sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = true
@@ -2730,12 +2726,10 @@ private fun ModelCard(
         dialogState.currentState?.let { editingModel ->
             val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
                 onDismissRequest = {
                     dialogState.dismiss()
                 },
                 sheetState = sheetState,
-                sheetGesturesEnabled = false,
                 dragHandle = null,
             ) {
                 Column(
@@ -3043,7 +3037,6 @@ private fun ProviderOverrideSettings(
         // Provider configuration modal
         if (showProviderConfig && editingProvider != null) {
             ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
                 onDismissRequest = {
                     showProviderConfig = false
                     editingProvider = null

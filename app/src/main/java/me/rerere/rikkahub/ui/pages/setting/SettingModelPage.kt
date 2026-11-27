@@ -20,7 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import com.wexpa.liquidglass.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import me.rerere.rikkahub.ui.components.ui.DebouncedTextField
 import androidx.compose.material3.ProvideTextStyle
@@ -30,7 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
+import com.wexpa.liquidglass.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -214,7 +214,6 @@ private fun DefaultSTTModelSetting(
 
     if (showModal) {
         ModalBottomSheet(
-            containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showModal = false
             },
@@ -342,7 +341,6 @@ private fun DefaultTranslationModelSetting(
 
     if (showModal) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showModal = false
             },
@@ -451,7 +449,6 @@ private fun DefaultSuggestionModelSetting(
 
     if (showModal) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showModal = false
             },
@@ -559,7 +556,6 @@ private fun DefaultTitleModelSetting(
 
     if (showModal) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showModal = false
             },
@@ -674,7 +670,6 @@ private fun DefaultSummarizerModelSetting(
 
     if (showModal) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showModal = false
             },
@@ -754,7 +749,6 @@ private fun DefaultSubagentModelSetting(
 
     if (showModal) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showModal = false
             },
@@ -866,7 +860,6 @@ private fun DefaultOcrModelSetting(
 
     if (showModal) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showModal = false
             },

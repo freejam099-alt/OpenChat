@@ -305,6 +305,8 @@ class SettingsStore(
             val validMcpServerIds = settings.mcpServers.map { it.id }.toSet()
             settings.copy(
                 providers = settings.providers
+                    // Tombstone kept only for decoding legacy blobs; never expose it as a real provider.
+                    .filterNot { it is ProviderSetting.LiteRtLocal }
                     .distinctBy { it.id }
                     .map { provider ->
                     when (provider) {
@@ -481,6 +483,7 @@ class SettingsStore(
             .normalizeSearchServices()
             .normalizeMemorySettings()
             .clearMissingModelReferences()
+            .copy(providers = settingsToSave.providers.filterNot { it is ProviderSetting.LiteRtLocal })
 
         // Handle explicit secret deletions (user cleared a field that had a value)
         // This must be called BEFORE migration to remove deleted secrets from SecureStore

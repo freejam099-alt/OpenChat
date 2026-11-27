@@ -22,10 +22,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import com.wexpa.liquidglass.material3.ModalBottomSheet
 import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import com.wexpa.liquidglass.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -347,7 +347,6 @@ private fun ToolCallPreviewSheet(
     val memoryId = (content as? JsonObject)?.get("id")?.jsonPrimitiveOrNull?.intOrNull
 
     ModalBottomSheet(
-        containerColor = lastChatSheetContainerColor(),
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         onDismissRequest = {
             onDismissRequest()
@@ -384,7 +383,6 @@ private fun ToolCallPreviewSheet(
                                     item {
                                         Card(
                                             colors = CardDefaults.cardColors(
-                                                containerColor = MaterialTheme.colorScheme.primaryContainer
                                             )
                                         ) {
                                             MarkdownBlock(
@@ -411,7 +409,6 @@ private fun ToolCallPreviewSheet(
                                             navController.navigate(Screen.WebView(url = url))
                                         },
                                         colors = CardDefaults.cardColors(
-                                            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                         )
                                     ) {
                                         Row(
@@ -463,7 +460,6 @@ private fun ToolCallPreviewSheet(
                                                 Card(
                                                     shape = AppShapes.CardSmall,
                                                     colors = CardDefaults.cardColors(
-                                                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                                                     )
                                                 ) {
                                                     Column(
@@ -570,7 +566,6 @@ private fun ToolCallPreviewSheet(
                             )
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -590,7 +585,6 @@ private fun ToolCallPreviewSheet(
                             )
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (error != null) 
                                         MaterialTheme.colorScheme.errorContainer 
                                     else MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
@@ -666,7 +660,6 @@ private fun ToolCallPreviewSheet(
                             
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = if (success) 
                                         MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
                                     else MaterialTheme.colorScheme.errorContainer
                                 ),
@@ -797,7 +790,6 @@ private fun ToolCallPreviewSheet(
                             }
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -843,7 +835,6 @@ private fun ToolCallPreviewSheet(
                             }
                             Card(
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {

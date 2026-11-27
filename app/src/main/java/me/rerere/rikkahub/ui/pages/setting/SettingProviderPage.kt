@@ -86,7 +86,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import com.wexpa.liquidglass.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
@@ -94,7 +94,7 @@ import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
+import com.wexpa.liquidglass.material3.rememberModalBottomSheetState
 import androidx.compose.foundation.isSystemInDarkTheme
 import me.rerere.rikkahub.ui.theme.LocalDarkMode
 import androidx.compose.foundation.LocalOverscrollFactory
@@ -575,10 +575,9 @@ private fun ProviderListView(
     var draggingIndex by remember { mutableStateOf(-1) }
     var dragOffset by remember { mutableFloatStateOf(0f) }
     var isUnlocked by remember { mutableStateOf(false) }
-    var neighborsUnlocked by remember { mutableStateOf(false) }
-    // Reset neighborsUnlocked when offset returns to 0
-    if (dragOffset == 0f && neighborsUnlocked) {
-        neighborsUnlocked = false
+    // Derived instead of written during composition — avoids recomposition loops while dragging.
+    val neighborsUnlocked by remember {
+        derivedStateOf { draggingIndex >= 0 && kotlin.math.abs(dragOffset) >= 35f }
     }
     
     // Check for matching preset when no providers found
@@ -836,15 +835,10 @@ private fun AddButton(
 
     val haptics = rememberPremiumHaptics(enabled = enableHaptics)
     val openProviderSheet = {
-        try {
-            haptics.perform(HapticPattern.Pop)
-            searchQuery = ""
-            showBottomSheet = true
-        } catch (t: Throwable) {
-            // Keep a faulty haptic/preset state from force-closing the whole app.
-            android.util.Log.e("SettingProviderPage", "Failed to open provider sheet", t)
-        }
-        Unit
+        runCatching { haptics.perform(HapticPattern.Pop) }
+            .onFailure { android.util.Log.w("SettingProviderPage", "haptic failed", it) }
+        searchQuery = ""
+        showBottomSheet = true
     }
 
     if (asFab) {
@@ -867,18 +861,18 @@ private fun AddButton(
         val scope = rememberCoroutineScope()
         
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = {
                 showBottomSheet = false
             },
             sheetState = bottomSheetState,
-            sheetGesturesEnabled = false,
             dragHandle = {
                 IconButton(
                     onClick = {
                         scope.launch {
                             bottomSheetState.hide()
-                            showBottomSheet = false
+                            if (!bottomSheetState.isVisible) {
+                                showBottomSheet = false
+                            }
                         }
                     }
                 ) {
@@ -999,7 +993,7 @@ containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceCon
                     }
                     
                     // Provider presets
-                    itemsIndexed(filteredPresets, key = { _, preset -> preset.name }) { index, preset ->
+                    itemsIndexed(filteredPresets, key = { index, preset -> "${preset.id ?: preset.name}#$index" }) { index, preset ->
                         val position = when {
                             filteredPresets.size == 1 -> ItemPosition.ONLY
                             index == 0 -> ItemPosition.FIRST

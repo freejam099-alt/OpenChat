@@ -12,9 +12,12 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.currentWindowDpSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -53,6 +56,7 @@ import me.rerere.rikkahub.data.datastore.SettingsStore
 import me.rerere.rikkahub.ui.components.ui.TTSController
 import me.rerere.rikkahub.ui.context.LocalAnimatedVisibilityScope
 import me.rerere.rikkahub.ui.context.LocalNavController
+import me.rerere.rikkahub.ui.context.LocalRootContentPadding
 import me.rerere.rikkahub.ui.context.LocalSettings
 import me.rerere.rikkahub.ui.context.LocalSharedTransitionScope
 import me.rerere.rikkahub.ui.context.LocalTTSState
@@ -795,7 +799,32 @@ class RouteActivity : ComponentActivity() {
                     navRoute.contains("SettingUICustomization") -> 2
                     else -> 3
                 }
-                Box(modifier = Modifier.fillMaxSize()) {
+                // The navbar is a real Scaffold bottomBar: Scaffold measures it (including system
+                // insets and shadow) and reserves exactly that space, so it can no longer cover
+                // the composer or settings lists.
+                Scaffold(
+                    bottomBar = {
+                        LastChatFloatingNavBar(
+                            selectedIndex = selectedFloatingTab,
+                            onSelected = { index ->
+                                when (index) {
+                                    0 -> navigateToChatPage(navBackStack)
+                                    1 -> navBackStack.navigate(Screen.SettingProvider) {
+                                        launchSingleTop = true
+                                    }
+                                    2 -> navBackStack.navigate(Screen.SettingUICustomization) {
+                                        launchSingleTop = true
+                                    }
+                                    else -> navBackStack.navigate(Screen.Setting) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
+                        )
+                    },
+                    contentWindowInsets = WindowInsets(0),
+                ) { innerPadding ->
+                CompositionLocalProvider(LocalRootContentPadding provides innerPadding) {
                 TTSController()
                 val shouldShowSetup = !settings.init &&
                     !settings.setupCompleted &&
@@ -818,8 +847,7 @@ class RouteActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
-                        // Leave room for the global floating tab bar (64dp bar + shadow + system insets).
-                        .padding(bottom = 104.dp),
+                        .padding(innerPadding),
                     startDestination = actualStartDestination,
                     navController = navBackStack,
                     enterTransition = {
@@ -1344,29 +1372,10 @@ class RouteActivity : ComponentActivity() {
                         WorkspaceTerminalPage(route.id)
                     }
                 }
-                // Global floating glass tab bar. It also stays visible on the chat screen;
-                // the chat surface itself carries no settings chrome.
-                LastChatFloatingNavBar(
-                    selectedIndex = selectedFloatingTab,
-                    onSelected = { index ->
-                        when (index) {
-                            0 -> navigateToChatPage(navBackStack)
-                            1 -> navBackStack.navigate(Screen.SettingProvider) {
-                                launchSingleTop = true
-                            }
-                            2 -> navBackStack.navigate(Screen.SettingUICustomization) {
-                                launchSingleTop = true
-                            }
-                            else -> navBackStack.navigate(Screen.Setting) {
-                                launchSingleTop = true
-                            }
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                )
                 // Toast host must be last so it renders on top of all content
                 AppToasterHost(state = toastState)
                 }
+            }
             }
         }
     }

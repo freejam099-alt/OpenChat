@@ -217,6 +217,7 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             if (isHazeDetachedCoordinateCrash(throwable)) {
                 Log.w(TAG, "Suppressed Haze LayoutCoordinate crash after detach", throwable)
+                writeCrashLog(thread, throwable)
                 return@setDefaultUncaughtExceptionHandler
             }
             previous?.uncaughtException(thread, throwable)
@@ -227,16 +228,20 @@ class LastChatApp : Application(), SingletonImageLoader.Factory {
     private fun installCrashLogger() {
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            try {
-                val sw = StringWriter()
-                throwable.printStackTrace(PrintWriter(sw))
-                val stamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
-                val outDir = getExternalFilesDir(null) ?: filesDir
-                File(outDir, "crash-last.txt").writeText("$stamp [${thread.name}]\n$sw")
-                Log.e(TAG, "FATAL crash", throwable)
-            } catch (_: Throwable) {
-            }
+            writeCrashLog(thread, throwable)
             previous?.uncaughtException(thread, throwable) ?: Runtime.getRuntime().halt(1)
+        }
+    }
+
+    private fun writeCrashLog(thread: Thread, throwable: Throwable) {
+        try {
+            val sw = StringWriter()
+            throwable.printStackTrace(PrintWriter(sw))
+            val stamp = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())
+            val outDir = getExternalFilesDir(null) ?: filesDir
+            File(outDir, "crash-last.txt").writeText("$stamp [${thread.name}]\n$sw")
+            Log.e(TAG, "FATAL crash", throwable)
+        } catch (_: Throwable) {
         }
     }
 

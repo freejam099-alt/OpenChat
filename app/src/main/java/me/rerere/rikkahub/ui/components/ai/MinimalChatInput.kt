@@ -115,12 +115,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import com.wexpa.liquidglass.material3.ModalBottomSheet
+import com.wexpa.liquidglass.GlassEffectContainer
 import com.wexpa.liquidglass.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
+import com.wexpa.liquidglass.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -176,6 +177,9 @@ import me.rerere.rikkahub.data.model.Skill
 import me.rerere.rikkahub.data.model.withoutSkillSelectionOverride
 import me.rerere.rikkahub.service.ChatService
 import me.rerere.rikkahub.ui.components.crop.CropImageScreen
+import me.rerere.rikkahub.ui.components.chat.GlassComposerAddButton
+import me.rerere.rikkahub.ui.components.chat.GlassComposerActionButton
+import me.rerere.rikkahub.ui.components.chat.GlassComposerCapsule
 import me.rerere.rikkahub.ui.components.chat.LastChatComposerAddButton
 import me.rerere.rikkahub.ui.components.chat.LastChatComposerAction
 import me.rerere.rikkahub.ui.components.chat.LastChatComposerActionButton
@@ -621,7 +625,6 @@ fun MinimalChatInput(
         Column(
             modifier = Modifier
                 .imePadding()
-                .navigationBarsPadding()
                 .padding(bottom = bottomPadding, start = 16.dp, end = 16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -774,11 +777,13 @@ fun MinimalChatInput(
                 }
             }
             
-            // Minimal input bar - plus button + text field with embedded action button
+            // Minimal input bar - plus button + text field with embedded action button.
+            // Glass pieces share one body so the whole composer reads as a single liquid surface.
+            GlassEffectContainer(spacing = 8.dp) {
             LastChatComposerRow {
                 // Plus button - 48dp pill button
                 if (!isQuestionnaireActive && !isToolApprovalActive) {
-                    LastChatComposerAddButton(
+                    GlassComposerAddButton(
                         onLongClick = {
                             if (!sttRecording && !sttFinalizing && hasSelectedSttProvider) {
                                 haptics.perform(HapticPattern.Pop)
@@ -798,11 +803,7 @@ fun MinimalChatInput(
                                 }
                             }
                         },
-                        containerColor = blurredContainerColor(MaterialTheme.colorScheme.surfaceContainer),
-                        modifier = Modifier
-                            .size(AppSize.ChromePill)
-                            .lastChatBlurEffect(MaterialTheme.colorScheme.surfaceContainer, CircleShape)
-                            .lastChatGlassInteractive(CircleShape),
+                        modifier = Modifier.size(AppSize.ChromePill),
                     ) {
                         Icon(
                             imageVector = if (sttRecording) Icons.Rounded.Stop else Icons.Rounded.Add,
@@ -815,12 +816,10 @@ fun MinimalChatInput(
                 // Text field capsule with embedded action button
                 // Corner radius = 24dp (user confirmed this was correct)
                 val inputShape = LastChatComposerInputShape
-                LastChatComposerCapsule(
-                    containerColor = blurredContainerColor(MaterialTheme.colorScheme.surfaceContainer),
+                GlassComposerCapsule(
                     modifier = Modifier
                         .weight(1f)
-                        .heightIn(min = AppSize.ChromePill)
-                        .lastChatGlass(inputShape),
+                        .heightIn(min = AppSize.ChromePill),
                 ) {
                     Column(
                         modifier = Modifier.fillMaxWidth()
@@ -1053,9 +1052,8 @@ fun MinimalChatInput(
                                         LastChatComposerAction.Stt
                                     else -> LastChatComposerAction.Picker
                                 }
-                                LastChatComposerActionButton(
+                                GlassComposerActionButton(
                                     action = currentAction,
-                                    modifier = Modifier.lastChatGlassInteractive(CircleShape),
                                     onClick = {
                                         when (currentAction) {
                                             LastChatComposerAction.Send,
@@ -1127,13 +1125,11 @@ fun MinimalChatInput(
                                         }
                                         LastChatComposerAction.SttFinalizing -> Unit
                                         LastChatComposerAction.Picker -> {
-                                            ModelSelector(
-                                                modelId = assistant.chatModelId ?: settings.chatModelId,
-                                                providers = settings.providers,
-                                                onSelect = { onUpdateChatModel(it) },
-                                                type = me.rerere.ai.provider.ModelType.CHAT,
-                                                onlyIcon = true,
-                                                modifier = Modifier.size(34.dp),
+                                            Icon(
+                                                imageVector = Icons.Rounded.Add,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
                                         }
                                     }
@@ -1294,7 +1290,7 @@ fun MinimalChatInput(
                                     !state.isEmpty() -> LastChatComposerAction.Send
                                     else -> LastChatComposerAction.Picker
                                 }
-                                LastChatComposerActionButton(
+                                GlassComposerActionButton(
                                     action = currentAction,
                                     onClick = {
                                         when (currentAction) {
@@ -1309,12 +1305,7 @@ fun MinimalChatInput(
                                             else -> Unit
                                         }
                                     },
-                                    modifier = Modifier.size(AppSize.ChromePill).lastChatGlassInteractive(CircleShape),
-                                    containerColorOverride = if (currentAction == LastChatComposerAction.Picker) {
-                                        MaterialTheme.colorScheme.surfaceVariant
-                                    } else {
-                                        null
-                                    },
+                                    modifier = Modifier.size(AppSize.ChromePill),
                                 ) { action ->
                                     when (action) {
                                         LastChatComposerAction.Loading -> {
@@ -1350,6 +1341,27 @@ fun MinimalChatInput(
                                                 tint = MaterialTheme.colorScheme.onErrorContainer,
                                             )
                                         }
+                                        LastChatComposerAction.Picker -> {
+                                            Icon(
+                                                imageVector = Icons.Rounded.Add,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                        LastChatComposerAction.Stt,
+                                        LastChatComposerAction.SttRecording -> {
+                                            Icon(
+                                                imageVector = if (action == LastChatComposerAction.SttRecording) {
+                                                    Icons.Rounded.Stop
+                                                } else {
+                                                    Icons.Rounded.Mic
+                                                },
+                                                contentDescription = null,
+                                                modifier = Modifier.size(24.dp),
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
                                         else -> {
                                             Icon(
                                                 imageVector = Icons.Rounded.ArrowUpward,
@@ -1366,6 +1378,7 @@ fun MinimalChatInput(
                     }
                 }
             }
+            }
         }
     }
 
@@ -1373,7 +1386,6 @@ fun MinimalChatInput(
     // Optical roundness: sheet corners (40dp) = button corners (24dp) + padding (16dp)
     if (showPicker) {
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = { showPicker = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
             shape = pickerSheetShape,
@@ -2323,10 +2335,8 @@ private fun MinimalPickerContent(
         }
         
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = { showModelPicker = false },
             sheetState = modelPickerSheetState,
-            sheetGesturesEnabled = false,
             dragHandle = {
                 IconButton(
                     onClick = {
@@ -2496,7 +2506,6 @@ containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceCon
         val chatModel = currentChatModel
         
         ModalBottomSheet(
-containerColor = androidx.compose.material3.MaterialTheme.colorScheme.surfaceContainerLow,
             onDismissRequest = { showSearchPicker = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
